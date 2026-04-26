@@ -252,9 +252,9 @@ export default function PortfolioSection() {
       let totalEstimatedSize = getPayloadSize(finalThumbnail, finalImages);
       console.log(`Estimated upload size: ${Math.round(totalEstimatedSize/1024)}KB`);
 
-      if (totalEstimatedSize > 1048000) {
-        console.error('Payload size exceeds 1MB limit');
-        alert(`용량이 너무 큽니다 (${Math.round(totalEstimatedSize/1024)}KB / 1024KB 제한). \n\n해결 방법: \n1. 이미지 개수를 줄여주세요 (현재 ${finalImages.length}개). \n2. 썸네일을 다른 사진으로 교체해보세요.`);
+      if (totalEstimatedSize > 10 * 1024 * 1024)
+        console.error('Payload size exceeds 10MB limit');
+        alert(`용량이 너무 큽니다 (${Math.round(totalEstimatedSize/1024)}KB / 10240KB 제한)`);
         setIsUploading(false);
         return;
       }
