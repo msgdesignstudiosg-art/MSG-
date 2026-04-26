@@ -152,7 +152,7 @@ export default function PortfolioSection() {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_DIM = 1000; // Balanced thumbnail resolution
+        const MAX_DIM = 1200; // Better thumbnail resolution
         let width = img.width;
         let height = img.height;
 
@@ -175,7 +175,7 @@ export default function PortfolioSection() {
           ctx.drawImage(img, 0, 0, width, height);
         }
         
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
         setNewThumbnail(dataUrl);
       };
       img.src = reader.result as string;
@@ -226,36 +226,36 @@ export default function PortfolioSection() {
 
   const handleSaveProject = async () => {
     if (isUploading) return;
-    setIsUploading(true);
     
     if (!newTitle.trim()) {
-      alert('Please provide a title.');
-      setIsUploading(false);
+      alert('Project title is required.');
       return;
     }
     
-    const finalThumbnail = newThumbnail || (newImages.length > 0 ? newImages[0] : null);
+    let finalThumbnail = newThumbnail || (newImages.length > 0 ? newImages[0] : null);
     
     if (!finalThumbnail) {
       alert('Please provide at least one image or a thumbnail.');
-      setIsUploading(false);
       return;
     }
 
-    const finalImages = newImages.length > 0 ? newImages : [finalThumbnail];
+    setIsUploading(true);
+    let finalImages = newImages.length > 0 ? newImages : [finalThumbnail];
 
     // Estimate payload size for Firestore (1MB limit)
-    const thumbnailSize = finalThumbnail.length;
-    const imagesSize = finalImages.reduce((acc, img) => acc + img.length, 0);
-    const totalEstimatedSize = thumbnailSize + imagesSize + newTitle.length + newDescription.length + 1000;
+    const getPayloadSize = (thumb: string, imgs: string[]) => {
+      return thumb.length + imgs.reduce((acc, img) => acc + img.length, 0) + newTitle.length + newDescription.length + 5000;
+    };
 
-    if (totalEstimatedSize > 1000000) { 
-      alert(`The total size of images is too large (${Math.round(totalEstimatedSize/1024)}KB). Firestore limit is 1024KB. Please remove some images or use slightly smaller files. Current estimate: ${Math.round(totalEstimatedSize/1024)}KB`);
+    let totalEstimatedSize = getPayloadSize(finalThumbnail, finalImages);
+    console.log(`Estimated upload size: ${Math.round(totalEstimatedSize/1024)}KB`);
+
+    if (totalEstimatedSize > 1040000) {
+      alert(`The project is too large (${Math.round(totalEstimatedSize/1024)}KB). Firestore limits each document to 1024KB. \n\nTips to fix: \n1. Reduce the number of gallery images (max 10). \n2. Try uploading slightly smaller original files. \n3. Shorten the description.`);
       setIsUploading(false);
       return;
     }
 
-    const path = 'projects';
     try {
       const existingProject = editingId ? projects.find(p => p.id === editingId) : null;
       
@@ -285,14 +285,16 @@ export default function PortfolioSection() {
       setNewDescription('');
       setNewImages([]);
       setNewThumbnail(null);
+      alert('Project saved successfully!');
     } catch (err: any) {
       console.error('Save Error:', err);
+      // Basic catch-all if handler fails
       if (err.code === 'permission-denied') {
-        alert('Permission Denied: You do not have authority to modify projects. Please ensure you are logged in with the admin account.');
+        alert('Permission Denied: You must be logged in as admin to save.');
       } else if (err.message?.includes('too large') || err.message?.includes('1,048,576 bytes')) {
-        alert('The project data is too large for Firestore (max 1MB). Try using fewer images or smaller files.');
+        alert('Total data exceeded 1MB limit. Please remove an image and try again.');
       } else {
-        alert(`Failed to save: ${err.message || 'Unknown error'}`);
+        alert(`Storage Error: ${err.message || 'Operation failed'}`);
       }
     } finally {
       setIsUploading(false);

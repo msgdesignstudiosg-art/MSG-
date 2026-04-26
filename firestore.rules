@@ -21,7 +21,8 @@ service cloud.firestore {
              data.imageUrl is string &&
              data.order is number &&
              data.images is list &&
-             (data.keys().hasAny(['description']) ? data.description is string : true);
+             (data.keys().hasAny(['description']) ? data.description is string : true) &&
+             (data.keys().hasAny(['updatedAt']) ? true : true);
     }
 
     match /projects/{projectId} {
