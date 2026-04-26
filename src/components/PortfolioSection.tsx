@@ -46,8 +46,9 @@ export default function PortfolioSection() {
 
     const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      setIsAdmin(u?.email === ADMIN_EMAIL);
-      if (u && u.email === ADMIN_EMAIL && !u.emailVerified) {
+      const isUserAdmin = u?.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
+      setIsAdmin(isUserAdmin);
+      if (u && isUserAdmin && !u.emailVerified) {
         console.warn('Admin email detected but not verified.');
       }
     });
@@ -97,8 +98,8 @@ export default function PortfolioSection() {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 2000; 
-          const MAX_HEIGHT = 2000;
+          const MAX_WIDTH = 1920; 
+          const MAX_HEIGHT = 1920;
           let width = img.width;
           let height = img.height;
 
@@ -114,12 +115,10 @@ export default function PortfolioSection() {
           if (ctx) {
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
-            // Fill with white for JPEG/WebP robustness if needed, but webp handles alpha
             ctx.drawImage(img, 0, 0, width, height);
           }
           
-          // WebP is much more efficient than JPEG for the same quality
-          const dataUrl = canvas.toDataURL('image/webp', 0.85); 
+          const dataUrl = canvas.toDataURL('image/webp', 0.82); 
           setNewImages(prev => [...prev, dataUrl]);
         };
         img.src = reader.result as string;
@@ -138,7 +137,7 @@ export default function PortfolioSection() {
       img.onload = () => {
         const canvas = document.createElement('canvas');
         // Thumbnails can be smaller (800px) to save document space for gallery images
-        const MAX_DIM = 800; 
+        const MAX_DIM = 1920; 
         let width = img.width;
         let height = img.height;
 
@@ -157,7 +156,7 @@ export default function PortfolioSection() {
           ctx.drawImage(img, 0, 0, width, height);
         }
         
-        const dataUrl = canvas.toDataURL('image/webp', 0.9);
+        const dataUrl = canvas.toDataURL('image/webp', 0.85);
         setNewThumbnail(dataUrl);
       };
       img.src = reader.result as string;
@@ -206,8 +205,11 @@ export default function PortfolioSection() {
     setShowAddModal(true);
   };
 
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const handleSaveProject = async () => {
     console.log('--- Handle Save Project Started ---');
+    setSaveError(null);
     if (isUploading) {
       console.log('Already uploading, skipping...');
       return;
@@ -229,18 +231,19 @@ export default function PortfolioSection() {
     console.log('isUploading set to true');
 
     try {
-      // Use the images if provided, otherwise fallback to thumbnail
       let finalImages = newImages.length > 0 ? newImages : [finalThumbnail];
+      console.log('Preparing data for Firestore. Gallery count:', finalImages.length);
 
       const getPayloadSize = (thumb: string, imgs: string[]) => {
         const dataSize = (thumb?.length || 0) + imgs.reduce((acc, img) => acc + (img?.length || 0), 0);
-        return dataSize + newTitle.length + (newDescription?.length || 0) + 30000;
+        return dataSize + newTitle.length + (newDescription?.length || 0) + 40000;
       };
 
       let totalEstimatedSize = getPayloadSize(finalThumbnail, finalImages);
       console.log(`Estimated upload size: ${Math.round(totalEstimatedSize/1024)}KB`);
 
       if (totalEstimatedSize > 1048000) {
+        console.error('Payload size exceeds 1MB limit');
         alert(`용량이 너무 큽니다 (${Math.round(totalEstimatedSize/1024)}KB / 1024KB 제한). \n\n해결 방법: \n1. 이미지 개수를 줄여주세요 (현재 ${finalImages.length}개). \n2. 썸네일을 다른 사진으로 교체해보세요.`);
         setIsUploading(false);
         return;
@@ -293,11 +296,12 @@ export default function PortfolioSection() {
       if (err.code === 'permission-denied') {
         errorMessage = '권한이 없습니다: 관리자 로그인이 필요합니다.';
       } else if (err.message?.includes('too large') || err.message?.includes('1,048,576')) {
-        errorMessage = '데이터 용량이 1MB를 초과했습니다. 이미지를 한두 개 제거해 주세요.';
+        errorMessage = '데이터 용량이 1MB를 초과했습니다. 이미지 개수를 줄이거나 해상도를 낮춰주세요.';
       } else {
         errorMessage = `저장 실패: ${err.message || '알 수 없는 오류'}`;
       }
       
+      setSaveError(errorMessage);
       alert(errorMessage);
     } finally {
       setIsUploading(false);
@@ -519,6 +523,12 @@ export default function PortfolioSection() {
                     )}
                   </div>
                 </div>
+
+                {saveError && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm">
+                    {saveError}
+                  </div>
+                )}
 
                 <button 
                   disabled={isUploading}
