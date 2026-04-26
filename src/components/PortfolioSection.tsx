@@ -45,8 +45,10 @@ export default function PortfolioSection() {
     });
 
     const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
+      console.log("Auth state changed:", u ? u.email : "No user");
       setUser(u);
       const isUserAdmin = u?.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
+      console.log("Is user admin check:", isUserAdmin, "Email:", u?.email, "Target:", ADMIN_EMAIL);
       setIsAdmin(isUserAdmin);
       if (u && isUserAdmin && !u.emailVerified) {
         console.warn('Admin email detected but not verified.');
@@ -327,19 +329,27 @@ export default function PortfolioSection() {
             </h3>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
              {isAdmin ? (
                <>
                 <button 
                   onClick={openAddModal}
-                  className="glass px-6 py-3 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-all font-medium"
+                  className="glass px-6 py-3 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-all font-medium bg-white/5 border border-white/10"
                 >
                   <Plus className="w-4 h-4" /> Add Work
                 </button>
-                <button onClick={handleLogout} className="text-zinc-500 hover:text-white transition-colors"><LogOut className="w-5 h-5"/></button>
+                <button onClick={handleLogout} className="text-zinc-500 hover:text-white transition-colors p-2" title="Logout"><LogOut className="w-5 h-5"/></button>
                </>
              ) : (
-               <button onClick={handleLogin} className="text-zinc-800 hover:text-zinc-600 transition-colors opacity-0 hover:opacity-100"><LogIn className="w-4 h-4"/></button>
+               <button 
+                onClick={() => {
+                  console.log("Login button clicked");
+                  handleLogin();
+                }} 
+                className="text-zinc-600 hover:text-[#ccff00] transition-colors p-2 flex items-center gap-2 text-xs font-mono"
+               >
+                 <LogIn className="w-4 h-4"/> Admin
+               </button>
              )}
           </div>
         </div>
