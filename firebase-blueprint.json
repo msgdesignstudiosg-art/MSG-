@@ -9,6 +9,8 @@
         "description": { "type": "string" },
         "category": { "type": "string" },
         "imageUrl": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "order": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "imageUrl", "category"]

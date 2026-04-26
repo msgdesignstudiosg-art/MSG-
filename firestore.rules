@@ -11,17 +11,17 @@ service cloud.firestore {
 
     function isAdmin() {
       return isSignedIn() && 
-             request.auth.token.email == 'msg.designstudio.sg@gmail.com' && 
-             request.auth.token.email_verified == true;
+             request.auth.token.email == 'msg.designstudio.sg@gmail.com';
     }
 
     function isValidProject(data) {
-      return data.keys().hasAll(['title', 'category', 'imageUrl', 'createdAt']) &&
-             data.keys().size() >= 4 && // Allowing for metadata if needed
+      return data.keys().hasAll(['title', 'category', 'imageUrl', 'createdAt', 'order', 'images']) &&
              data.title is string && data.title.size() <= 200 &&
              data.category is string &&
              data.imageUrl is string &&
-             data.createdAt is timestamp;
+             data.order is number &&
+             data.images is list &&
+             (data.keys().hasAny(['description']) ? data.description is string : true);
     }
 
     match /projects/{projectId} {

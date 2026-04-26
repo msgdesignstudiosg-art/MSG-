@@ -9,9 +9,11 @@ interface Project {
   id: string;
   title: string;
   category: string;
-  imageUrl: string; // Keep as thumbnail/first image
+  imageUrl: string; 
   images: string[];
   description: string;
+  order: number;
+  createdAt?: any;
 }
 
 const ADMIN_EMAIL = 'msg.designstudio.sg@gmail.com';
@@ -29,12 +31,13 @@ export default function PortfolioSection() {
   const [newDescription, setNewDescription] = useState('');
   const [newImages, setNewImages] = useState<string[]>([]);
   const [newThumbnail, setNewThumbnail] = useState<string | null>(null);
+  const [newOrder, setNewOrder] = useState<number>(0);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'projects'), orderBy('order', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
       setProjects(docs);
@@ -44,6 +47,9 @@ export default function PortfolioSection() {
     const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setIsAdmin(u?.email === ADMIN_EMAIL);
+      if (u && u.email === ADMIN_EMAIL && !u.emailVerified) {
+        console.warn('Admin email detected but not verified.');
+      }
     });
 
     const handleAdminTrigger = () => {
@@ -86,8 +92,8 @@ export default function PortfolioSection() {
     }
 
     Array.from(files).forEach((file: File) => {
-      if (file.size > 10 * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Please select images under 10MB.`);
+      if (file.size > 15 * 1024 * 1024) {
+        alert(`File ${file.name} is too large. Please select images under 15MB.`);
         return;
       }
 
@@ -96,18 +102,16 @@ export default function PortfolioSection() {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1000;
-          const MAX_HEIGHT = 1000;
+          const MAX_WIDTH = 1400; 
+          const MAX_HEIGHT = 1400;
           let width = img.width;
           let height = img.height;
 
-          if (width > height) {
-            if (width > MAX_WIDTH) {
+          if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+            if (width > height) {
               height *= MAX_WIDTH / width;
               width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
+            } else {
               width *= MAX_HEIGHT / height;
               height = MAX_HEIGHT;
             }
@@ -116,9 +120,13 @@ export default function PortfolioSection() {
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
+          if (ctx) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, width, height);
+          }
           
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.5); // More aggressive compression for many images
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // High quality, reasonable size
           setNewImages(prev => [...prev, dataUrl]);
         };
         img.src = reader.result as string;
@@ -144,17 +152,15 @@ export default function PortfolioSection() {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_DIM = 600; 
+        const MAX_DIM = 1000; // Balanced thumbnail resolution
         let width = img.width;
         let height = img.height;
 
-        if (width > height) {
-          if (width > MAX_DIM) {
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
             height *= MAX_DIM / width;
             width = MAX_DIM;
-          }
-        } else {
-          if (height > MAX_DIM) {
+          } else {
             width *= MAX_DIM / height;
             height = MAX_DIM;
           }
@@ -163,9 +169,13 @@ export default function PortfolioSection() {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+        }
         
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
         setNewThumbnail(dataUrl);
       };
       img.src = reader.result as string;
@@ -199,6 +209,7 @@ export default function PortfolioSection() {
     setNewDescription('');
     setNewImages([]);
     setNewThumbnail(null);
+    setNewOrder(projects.length > 0 ? Math.max(...projects.map(p => p.order || 0)) + 1 : 0);
     setShowAddModal(true);
   };
 
@@ -209,48 +220,62 @@ export default function PortfolioSection() {
     setNewDescription(project.description || '');
     setNewImages(project.images || [project.imageUrl]);
     setNewThumbnail(project.imageUrl);
+    setNewOrder(project.order || 0);
     setShowAddModal(true);
   };
 
   const handleSaveProject = async () => {
-    if (!newTitle) {
-      alert('Please provide a title.');
-      return;
-    }
-    if (!newThumbnail && newImages.length === 0) {
-      alert('Please provide at least a thumbnail or project images.');
-      return;
-    }
-
+    if (isUploading) return;
     setIsUploading(true);
     
+    if (!newTitle.trim()) {
+      alert('Please provide a title.');
+      setIsUploading(false);
+      return;
+    }
+    
+    const finalThumbnail = newThumbnail || (newImages.length > 0 ? newImages[0] : null);
+    
+    if (!finalThumbnail) {
+      alert('Please provide at least one image or a thumbnail.');
+      setIsUploading(false);
+      return;
+    }
+
+    const finalImages = newImages.length > 0 ? newImages : [finalThumbnail];
+
+    // Estimate payload size for Firestore (1MB limit)
+    const thumbnailSize = finalThumbnail.length;
+    const imagesSize = finalImages.reduce((acc, img) => acc + img.length, 0);
+    const totalEstimatedSize = thumbnailSize + imagesSize + newTitle.length + newDescription.length + 1000;
+
+    if (totalEstimatedSize > 1000000) { 
+      alert(`The total size of images is too large (${Math.round(totalEstimatedSize/1024)}KB). Firestore limit is 1024KB. Please remove some images or use slightly smaller files. Current estimate: ${Math.round(totalEstimatedSize/1024)}KB`);
+      setIsUploading(false);
+      return;
+    }
+
     const path = 'projects';
     try {
-      const finalThumbnail = newThumbnail || newImages[0];
-      const finalImages = newImages.length > 0 ? newImages : [finalThumbnail];
-
-      // Total size check (rough estimate in bytes)
-      const totalSize = (finalThumbnail?.length || 0) + finalImages.reduce((acc, img) => acc + img.length, 0);
-      if (totalSize > 800000) { // ~800KB limit to be safe within 1MB Firestore limit
-        alert('Total project size is too large. Please reduce the number of images or use smaller images.');
-        setIsUploading(false);
-        return;
-      }
-
-      const projectData = {
-        title: newTitle,
+      const existingProject = editingId ? projects.find(p => p.id === editingId) : null;
+      
+      const projectData: any = {
+        title: newTitle.trim(),
         category: newCategory,
-        description: newDescription,
+        description: newDescription.trim(), 
         imageUrl: finalThumbnail, 
         images: finalImages,
-        updatedAt: serverTimestamp(),
-        ...(editingId ? {} : { createdAt: serverTimestamp() })
+        order: Number(newOrder) || 0,
+        createdAt: editingId ? (existingProject?.createdAt || serverTimestamp()) : serverTimestamp()
       };
 
       if (editingId) {
-        await updateDoc(doc(db, path, editingId), projectData);
+        await updateDoc(doc(db, 'projects', editingId), {
+          ...projectData,
+          updatedAt: serverTimestamp()
+        });
       } else {
-        await addDoc(collection(db, path), projectData);
+        await addDoc(collection(db, 'projects'), projectData);
       }
 
       setShowAddModal(false);
@@ -261,18 +286,13 @@ export default function PortfolioSection() {
       setNewImages([]);
       setNewThumbnail(null);
     } catch (err: any) {
-      try {
-        handleFirestoreError(err, editingId ? 'update' : 'create', editingId ? `${path}/${editingId}` : path);
-      } catch (jsonErr: any) {
-        const errorData = JSON.parse(jsonErr.message);
-        console.error('Parsed Error:', errorData);
-        if (errorData.error.includes('permission') || errorData.error.includes('insufficient')) {
-          alert('Permission Denied: You do not have authority to modify projects. Please verify you are logged in as admin.');
-        } else if (errorData.error.includes('too large') || errorData.error.includes('1,048,576 bytes')) {
-          alert('Image too large: Even after compression, this image exceeds Firestore\'s 1MB limit. Try a smaller or lower-resolution file.');
-        } else {
-          alert(`Operation failed: ${errorData.error}`);
-        }
+      console.error('Save Error:', err);
+      if (err.code === 'permission-denied') {
+        alert('Permission Denied: You do not have authority to modify projects. Please ensure you are logged in with the admin account.');
+      } else if (err.message?.includes('too large') || err.message?.includes('1,048,576 bytes')) {
+        alert('The project data is too large for Firestore (max 1MB). Try using fewer images or smaller files.');
+      } else {
+        alert(`Failed to save: ${err.message || 'Unknown error'}`);
       }
     } finally {
       setIsUploading(false);
@@ -286,9 +306,9 @@ export default function PortfolioSection() {
   };
 
   return (
-    <section id="work" className="relative py-32 px-12">
+    <section id="work" className="relative py-20 md:py-32 px-6 md:px-12">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 md:mb-24 gap-8">
           <div>
             <h2 className="text-sm font-mono uppercase tracking-[0.3em] text-zinc-500 mb-6">Our Work</h2>
             <h3 className="text-5xl md:text-7xl font-light">
@@ -318,7 +338,7 @@ export default function PortfolioSection() {
             <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {projects.map((project, idx) => (
               <motion.div 
                 key={project.id}
@@ -329,7 +349,7 @@ export default function PortfolioSection() {
                 className="group relative cursor-pointer"
                 onClick={() => setSelectedProject(project)}
               >
-                <div className="aspect-[4/5] bg-white/5 rounded-[2.5rem] overflow-hidden mb-6 relative border border-white/5">
+                <div className="aspect-[4/5] bg-white/5 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden mb-4 md:mb-6 relative border border-white/5">
                   <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-8 gap-4 backdrop-blur-[2px]">
                      <span className="text-xs font-mono uppercase tracking-widest text-[#ccff00]">{project.category}</span>
@@ -407,6 +427,18 @@ export default function PortfolioSection() {
                       <option value="VisualIdentity">Visual Identity</option>
                       <option value="Digital">Digital Design</option>
                     </select>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Display Order (Smaller first)</label>
+                    <input 
+                      type="number"
+                      value={newOrder}
+                      onChange={e => setNewOrder(parseInt(e.target.value) || 0)}
+                      className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors"
+                    />
                   </div>
                 </div>
 
@@ -502,19 +534,19 @@ export default function PortfolioSection() {
                initial={{ opacity: 0, y: 20 }}
                animate={{ opacity: 1, y: 0 }}
                exit={{ opacity: 0, y: 20 }}
-               className="relative w-full max-w-7xl mx-auto md:py-32 py-20 px-8"
+               className="relative w-full max-w-7xl mx-auto py-12 md:py-32 px-4 sm:px-8"
              >
-                <div className="fixed top-8 right-8 z-[150] flex gap-4">
+                <div className="fixed top-4 right-4 md:top-8 md:right-8 z-[150] flex gap-4">
                   <button 
                     onClick={() => setSelectedProject(null)}
-                    className="p-4 bg-white/10 backdrop-blur-xl rounded-full text-white hover:bg-[#ccff00] hover:text-black transition-all shadow-2xl border border-white/10"
+                    className="p-3 md:p-4 bg-white/10 backdrop-blur-xl rounded-full text-white hover:bg-[#ccff00] hover:text-black transition-all shadow-2xl border border-white/10 active:scale-90"
                   >
-                    <X className="w-8 h-8" />
+                    <X className="w-6 h-6 md:w-8 md:h-8" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr,400px] gap-16 lg:gap-32">
-                   <div className="space-y-8 md:space-y-16">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr,400px] gap-12 md:gap-16 lg:gap-32">
+                   <div className="space-y-6 md:space-y-16">
                       {selectedProject.images && selectedProject.images.map((img, i) => (
                         <motion.div 
                           key={i}
@@ -526,34 +558,34 @@ export default function PortfolioSection() {
                           <img src={img} alt={`${selectedProject.title} ${i + 1}`} className="w-full h-auto block" />
                         </motion.div>
                       ))}
-                      {!selectedProject.images && (
+                      {(!selectedProject.images || selectedProject.images.length === 0) && (
                         <div className="rounded-[1rem] overflow-hidden border border-white/5 bg-white/5 shadow-2xl">
                           <img src={selectedProject.imageUrl} alt={selectedProject.title} className="w-full h-auto block" />
                         </div>
                       )}
                    </div>
 
-                   <aside className="lg:sticky lg:top-24 h-fit space-y-16 lg:pt-0 pt-12">
-                      <div className="space-y-6">
-                        <span className="text-xs font-mono text-[#ccff00] uppercase tracking-[0.4em]">{selectedProject.category}</span>
-                        <h2 className="text-5xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9]">{selectedProject.title}</h2>
+                   <aside className="lg:sticky lg:top-24 h-fit space-y-10 md:space-y-16 lg:pt-0 pb-12">
+                      <div className="space-y-4 md:space-y-6">
+                        <span className="text-[10px] md:text-xs font-mono text-[#ccff00] uppercase tracking-[0.4em]">{selectedProject.category}</span>
+                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9]">{selectedProject.title}</h2>
                       </div>
                       
                       <div className="h-[1px] bg-gradient-to-r from-white/20 to-transparent w-full" />
 
-                      <div className="space-y-8">
-                        <h5 className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.4em]">Project Insight</h5>
-                        <p className="text-zinc-300 text-lg font-light leading-relaxed whitespace-pre-wrap">
+                      <div className="space-y-6 md:space-y-8">
+                        <h5 className="text-[10px] md:text-[11px] font-mono text-zinc-500 uppercase tracking-[0.3em] md:tracking-[0.4em]">Project Insight</h5>
+                        <p className="text-zinc-300 text-sm sm:text-base md:text-lg font-light leading-relaxed whitespace-pre-wrap">
                           {selectedProject.description || "No detailed description available."}
                         </p>
                       </div>
 
-                      <div className="pt-12">
+                      <div className="pt-8 md:pt-12">
                         <a 
                           href="http://pf.kakao.com/_CybjX/chat"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full text-center inline-block px-12 py-6 bg-white text-black text-xs font-bold uppercase tracking-[0.4em] rounded-full hover:bg-[#ccff00] transition-all shadow-2xl active:scale-95"
+                          className="w-full text-center inline-block px-8 md:px-12 py-4 md:py-6 bg-white text-black text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] rounded-full hover:bg-[#ccff00] transition-all shadow-2xl active:scale-95"
                         >
                           Work With Us
                         </a>

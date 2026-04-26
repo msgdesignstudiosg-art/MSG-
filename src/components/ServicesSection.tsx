@@ -30,14 +30,14 @@ const FolderIcon = ({ color }: { color: string }) => (
 
 export default function ServicesSection() {
   return (
-    <section id="services" className="relative py-32 px-12 bg-black/20 backdrop-blur-3xl border-y border-white/5">
+    <section id="services" className="relative py-20 md:py-32 px-6 md:px-12 bg-black/20 backdrop-blur-3xl border-y border-white/5">
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-sm font-mono uppercase tracking-[0.3em] text-zinc-500 mb-6">Our Services</h2>
         <p className="text-4xl md:text-5xl font-light mb-24 md:mb-32 drop-shadow-lg">
           <span className="italic font-serif">Solutions</span> crafted for your distinction.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 lg:gap-20">
           {services.map((service) => (
             <motion.div 
               key={service.title}
