@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 // Define the config from environment variables first (Netlify/Vercel standard)
 export let firebaseConfig: any = {
@@ -52,6 +53,7 @@ if (isConfigValid(firebaseConfig)) {
 }
 
 export const db = getFirestore(app, "portfolio-db");
+export const storage = getStorage(app);
 export const auth = getAuth(app);
 
 // Attempt to reload config and re-initialize if we were using placeholders
