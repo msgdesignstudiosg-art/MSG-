@@ -56,13 +56,7 @@ export const auth = getAuth(app);
 
 // Attempt to reload config and re-initialize if we were using placeholders
 // This is mainly for the AI Studio preview environment
-loadLocalConfig().then((loaded) => {
-  if (loaded && isConfigValid(firebaseConfig)) {
-    // Note: In most cases, if we're here, we already initialized with a placeholder.
-    // Re-initializing might not be fully supported by all SDK parts easily without refresh,
-    // but at least the config object will be updated for future calls if something uses it.
-    console.log("Firebase config updated from local fallback.");
-  }
+
 });
 
 // Connectivity Test
