@@ -269,14 +269,21 @@ export default function PortfolioSection() {
  return;
 }
 
+      const uploadedThumbnail = finalThumbnail
+  ? await uploadImageToStorage(finalThumbnail)
+  : '';
+
+const uploadedImages = await Promise.all(
+  finalImages.map((img) => uploadImageToStorage(img))
+);
       const existingProject = editingId ? projects.find(p => p.id === editingId) : null;
       
       const projectData: any = {
         title: newTitle.trim(),
         category: newCategory,
         description: newDescription.trim(), 
-        imageUrl: finalThumbnail, 
-        images: finalImages,
+        imageUrl: uploadedThumbnail,
+images: uploadedImages,
         order: Number(newOrder) || 0,
       };
 
