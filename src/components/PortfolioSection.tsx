@@ -42,7 +42,15 @@ export default function PortfolioSection() {
   const fileName = `portfolio/${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const storageRef = ref(storage, fileName);
 
-  await uploadString(storageRef, base64, 'data_url');
+  await uploadString(storageRef, base64, 'data_url', {
+  contentType: base64.includes('image/gif')
+    ? 'image/gif'
+    : base64.includes('image/webp')
+    ? 'image/webp'
+    : base64.includes('image/png')
+    ? 'image/png'
+    : 'image/jpeg',
+});
   return await getDownloadURL(storageRef);
 };
 
