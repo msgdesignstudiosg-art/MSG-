@@ -252,13 +252,15 @@ export default function PortfolioSection() {
       let totalEstimatedSize = getPayloadSize(finalThumbnail, finalImages);
       console.log(`Estimated upload size: ${Math.round(totalEstimatedSize/1024)}KB`);
 
-      if (totalEstimatedSize > 10 * 1024 * 1024)
-        console.error('Payload size exceeds 10MB limit');
-        alert(`용량이 너무 큽니다 (${Math.round(totalEstimatedSize/1024)}KB / 10240KB 제한)`);
-        setIsUploading(false);
-        return;
-      }
-
+      if (totalEstimatedSize > 10 * 1024 * 1024) {
+  console.error('Payload size exceeds 10MB limit');
+  alert(`용량이 너무 큽니다 (${Math.round(totalEstimatedSize / 1024)}KB / 10240KB 제한)`);
+  setIsUploading(false);
+ return;
+}
+} finally {
+  setIsUploading(false);
+}
       const existingProject = editingId ? projects.find(p => p.id === editingId) : null;
       
       const projectData: any = {
