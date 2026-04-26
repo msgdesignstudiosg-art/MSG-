@@ -258,9 +258,7 @@ export default function PortfolioSection() {
   setIsUploading(false);
  return;
 }
-} finally {
-  setIsUploading(false);
-}
+
       const existingProject = editingId ? projects.find(p => p.id === editingId) : null;
       
       const projectData: any = {
