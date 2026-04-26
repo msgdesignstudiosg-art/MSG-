@@ -53,7 +53,7 @@ export default function LandingPage() {
           
           <div className="max-w-2xl mx-auto space-y-6 mb-16">
             <p className="text-xl md:text-2xl text-zinc-300 font-light leading-relaxed">
-              우리는 단순히 포장하지 않습니다. <br/> 브랜드의 경험을 디자인합니다.
+              저희 MSG 디자인 스튜디오는 단순히 포장하지 않습니다. <br/> 브랜드의 경험을 디자인합니다.
             </p>
           </div>
 
