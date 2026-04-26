@@ -57,7 +57,6 @@ export const auth = getAuth(app);
 // Attempt to reload config and re-initialize if we were using placeholders
 // This is mainly for the AI Studio preview environment
 
-});
 
 // Connectivity Test
 async function testConnection() {
