@@ -51,7 +51,7 @@ if (isConfigValid(firebaseConfig)) {
   }) : getApp();
 }
 
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId === '(default)' ? undefined : firebaseConfig.firestoreDatabaseId);
+export const db = getFirestore(app, "portfolio-db");
 export const auth = getAuth(app);
 
 // Attempt to reload config and re-initialize if we were using placeholders
