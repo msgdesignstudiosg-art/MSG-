@@ -42,16 +42,24 @@ export default function PortfolioSection() {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
       setProjects(docs);
       setLoading(false);
+    }, (error) => {
+      console.error("Firestore onSnapshot error:", error);
+      setLoading(false);
     });
 
     const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
-      console.log("Auth state changed:", u ? u.email : "No user");
+      console.log("Auth state updated:", u ? u.email : "No user", "Verified:", u?.emailVerified);
       setUser(u);
-      const isUserAdmin = u?.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
-      console.log("Is user admin check:", isUserAdmin, "Email:", u?.email, "Target:", ADMIN_EMAIL);
+      
+      const isEmailMatch = u?.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
+      const isVerified = u?.emailVerified === true;
+      const isUserAdmin = isEmailMatch && isVerified;
+      
+      console.log("Admin Status Check:", { isEmailMatch, isVerified, isUserAdmin });
       setIsAdmin(isUserAdmin);
-      if (u && isUserAdmin && !u.emailVerified) {
-        console.warn('Admin email detected but not verified.');
+      
+      if (u && isEmailMatch && !isVerified) {
+        console.warn('Admin email detected but not verified. Access restricted.');
       }
     });
 
@@ -313,9 +321,24 @@ export default function PortfolioSection() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Delete this project?')) {
-      await deleteDoc(doc(db, 'projects', id));
+    console.log('--- Handle Delete Start ---');
+    console.log('Project ID to delete:', id);
+    if (window.confirm('정말로 삭제하시겠습니까?')) {
+      try {
+        console.log('Attempting deleteDoc...');
+        await deleteDoc(doc(db, 'projects', id));
+        console.log('deleteDoc successful');
+        alert('삭제되었습니다.');
+      } catch (err: any) {
+        console.error('Delete error details:', err);
+        if (err.code === 'permission-denied') {
+          alert('권한이 없습니다: 관리자 권한이 필요합니다. (Permission Denied)');
+        } else {
+          alert(`삭제 중 오류가 발생했습니다: ${err.message || '알 수 없는 오류'}`);
+        }
+      }
     }
+    console.log('--- Handle Delete Finished ---');
   };
 
   return (
@@ -330,6 +353,14 @@ export default function PortfolioSection() {
           </div>
           
           <div className="flex gap-4 items-center">
+             {user && (
+               <div className="flex flex-col items-end mr-4">
+                 <span className="text-[10px] font-mono text-zinc-500 uppercase">Logged in as</span>
+                 <span className={`text-xs font-mono ${isAdmin ? 'text-[#ccff00]' : 'text-zinc-400'}`}>
+                   {user.email} {!isAdmin && user.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim() ? '(Not Verified)' : ''}
+                 </span>
+               </div>
+             )}
              {isAdmin ? (
                <>
                 <button 
@@ -375,22 +406,28 @@ export default function PortfolioSection() {
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-8 gap-4 backdrop-blur-[2px]">
                      <span className="text-xs font-mono uppercase tracking-widest text-[#ccff00]">{project.category}</span>
                      <h4 className="text-2xl font-medium">{project.title}</h4>
-                     {isAdmin && (
-                       <div className="absolute top-6 right-6 flex gap-2">
-                         <button 
-                           onClick={(e) => { e.stopPropagation(); openEditModal(project); }}
-                           className="p-3 bg-[#ccff00]/80 text-black rounded-full hover:bg-[#ccff00] transition-colors"
-                         >
-                           <Plus className="w-4 h-4 rotate-45" />
-                         </button>
-                         <button 
-                          onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
-                          className="p-3 bg-red-500/80 rounded-full hover:bg-red-500 transition-colors"
-                         >
-                           <Trash2 className="w-4 h-4" />
-                         </button>
-                       </div>
-                     )}
+                      {isAdmin && (
+                        <div className="absolute top-6 right-6 flex gap-3 z-[60]">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); openEditModal(project); }}
+                            className="p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-[#ccff00] hover:text-black transition-all border border-white/10"
+                            title="Edit Project"
+                          >
+                            <Plus className="w-4 h-4 rotate-45" />
+                          </button>
+                          <button 
+                           onClick={(e) => { 
+                             console.log('Trash icon clicked for project:', project.id);
+                             e.stopPropagation(); 
+                             handleDelete(project.id); 
+                           }}
+                           className="p-3 bg-red-500/20 backdrop-blur-md text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
+                           title="Delete Project"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                   </div>
                 </div>
               </motion.div>

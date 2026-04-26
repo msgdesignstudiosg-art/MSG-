@@ -7,10 +7,33 @@ import ProcessSection from './components/ProcessSection';
 import PortfolioSection from './components/PortfolioSection';
 import ReviewsSection from './components/ReviewsSection';
 import { motion } from 'motion/react';
+import { isConfigValid, firebaseConfig } from './lib/firebase';
+import { useEffect, useState } from 'react';
 
 export default function App() {
+  const [configChecked, setConfigChecked] = useState(false);
+  const [isValid, setIsValid] = useState(true);
+
+  useEffect(() => {
+    // Check config on mount
+    setIsValid(isConfigValid(firebaseConfig));
+    setConfigChecked(true);
+
+    // Some configurations might load asynchronously from fallback local file in AI Studio
+    const timer = setTimeout(() => {
+      setIsValid(isConfigValid(firebaseConfig));
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="relative w-full min-h-screen font-sans selection:bg-orange-500 selection:text-white bg-[#0A0A0B] text-white">
+      {!isValid && configChecked && (
+        <div className="fixed top-0 left-0 right-0 z-[1000] bg-red-600 text-white p-4 text-center text-xs md:text-sm font-bold">
+          Firebase configuration is missing. If you're on Netlify/Vercel, please set VITE_FIREBASE_* environment variables.
+        </div>
+      )}
       <Blobs />
       <Navbar />
       
