@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { collection, onSnapshot, query, addDoc, updateDoc, orderBy, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db, auth } from '../lib/firebase';
+import { db, auth, storage } from '../lib/firebase';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
 import { Plus, X, Trash2, LogIn, LogOut, Loader2 } from 'lucide-react';
 
@@ -35,6 +36,15 @@ export default function PortfolioSection() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const uploadImageToStorage = async (base64: string) => {
+  if (!base64.startsWith('data:image')) return base64;
+
+  const fileName = `portfolio/${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const storageRef = ref(storage, fileName);
+
+  await uploadString(storageRef, base64, 'data_url');
+  return await getDownloadURL(storageRef);
+};
 
   useEffect(() => {
     const q = query(collection(db, 'projects'), orderBy('order', 'asc'));
