@@ -13,10 +13,7 @@ export let firebaseConfig: any = {
   firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)'
 };
       // Ignore error if file is missing (expected in production)
-    }
-  }
-  return false;
-};
+ 
 
 // Check if we have the minimal required config
 export const isConfigValid = (config: any) => 
