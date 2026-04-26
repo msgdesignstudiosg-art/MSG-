@@ -72,12 +72,13 @@ export default function App() {
               LET’S <span className="font-serif font-light text-zinc-400 not-italic">CREATE</span><br/>
               SOMETHING <span className="font-serif font-light text-zinc-400 not-italic">GREAT</span>
             </h2>
-            <div className="space-y-4 mb-16 px-4">
-              <p className="text-2xl md:text-4xl font-sans italic font-bold uppercase tracking-[0.15em] text-[#ccff00]">
+            <div className="flex flex-col items-center gap-4 mb-16 px-4">
+              <div className="w-12 h-[1px] bg-[#ccff00]/30" />
+              <p className="text-sm md:text-base font-sans italic font-light uppercase tracking-[0.25em] text-zinc-400 leading-relaxed text-center">
                 보는 순간 느껴지는 감각,
-              </p>
-              <p className="text-2xl md:text-4xl font-sans italic font-bold uppercase tracking-[0.15em] text-[#ccff00]">
-                MSG DESIGN STUDIO와 함께하세요.
+                <span className="block mt-2 text-[#ccff00] font-semibold tracking-[0.35em]">
+                  MSG DESIGN STUDIO와 함께하세요.
+                </span>
               </p>
             </div>
             
