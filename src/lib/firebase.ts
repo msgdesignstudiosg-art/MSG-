@@ -4,7 +4,6 @@ import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 // Fallback for AI Studio environment if env vars aren't set yet
 
 const firebaseConfig = {
-  const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
