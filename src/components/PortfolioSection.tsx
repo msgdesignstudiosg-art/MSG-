@@ -92,29 +92,20 @@ export default function PortfolioSection() {
     }
 
     Array.from(files).forEach((file: File) => {
-      if (file.size > 15 * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Please select images under 15MB.`);
-        return;
-      }
-
       const reader = new FileReader();
       reader.onloadend = () => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1400; 
-          const MAX_HEIGHT = 1400;
+          const MAX_WIDTH = 2000; 
+          const MAX_HEIGHT = 2000;
           let width = img.width;
           let height = img.height;
 
           if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-            if (width > height) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            } else {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
+            const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+            width *= ratio;
+            height *= ratio;
           }
 
           canvas.width = width;
@@ -123,16 +114,15 @@ export default function PortfolioSection() {
           if (ctx) {
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
+            // Fill with white for JPEG/WebP robustness if needed, but webp handles alpha
             ctx.drawImage(img, 0, 0, width, height);
           }
           
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // High quality, reasonable size
+          // WebP is much more efficient than JPEG for the same quality
+          const dataUrl = canvas.toDataURL('image/webp', 0.85); 
           setNewImages(prev => [...prev, dataUrl]);
         };
         img.src = reader.result as string;
-      };
-      reader.onerror = () => {
-        console.error("FileReader error");
       };
       reader.readAsDataURL(file);
     });
@@ -142,28 +132,20 @@ export default function PortfolioSection() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert(`File is too large. Please select an image under 10MB.`);
-      return;
-    }
-
     const reader = new FileReader();
     reader.onloadend = () => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_DIM = 1200; // Better thumbnail resolution
+        // Thumbnails can be smaller (800px) to save document space for gallery images
+        const MAX_DIM = 800; 
         let width = img.width;
         let height = img.height;
 
         if (width > MAX_DIM || height > MAX_DIM) {
-          if (width > height) {
-            height *= MAX_DIM / width;
-            width = MAX_DIM;
-          } else {
-            width *= MAX_DIM / height;
-            height = MAX_DIM;
-          }
+          const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+          width *= ratio;
+          height *= ratio;
         }
 
         canvas.width = width;
@@ -175,7 +157,7 @@ export default function PortfolioSection() {
           ctx.drawImage(img, 0, 0, width, height);
         }
         
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        const dataUrl = canvas.toDataURL('image/webp', 0.9);
         setNewThumbnail(dataUrl);
       };
       img.src = reader.result as string;
@@ -225,38 +207,45 @@ export default function PortfolioSection() {
   };
 
   const handleSaveProject = async () => {
-    if (isUploading) return;
+    console.log('--- Handle Save Project Started ---');
+    if (isUploading) {
+      console.log('Already uploading, skipping...');
+      return;
+    }
     
+    // Final validation
     if (!newTitle.trim()) {
       alert('Project title is required.');
       return;
     }
     
     let finalThumbnail = newThumbnail || (newImages.length > 0 ? newImages[0] : null);
-    
     if (!finalThumbnail) {
       alert('Please provide at least one image or a thumbnail.');
       return;
     }
 
     setIsUploading(true);
-    let finalImages = newImages.length > 0 ? newImages : [finalThumbnail];
-
-    // Estimate payload size for Firestore (1MB limit)
-    const getPayloadSize = (thumb: string, imgs: string[]) => {
-      return thumb.length + imgs.reduce((acc, img) => acc + img.length, 0) + newTitle.length + newDescription.length + 5000;
-    };
-
-    let totalEstimatedSize = getPayloadSize(finalThumbnail, finalImages);
-    console.log(`Estimated upload size: ${Math.round(totalEstimatedSize/1024)}KB`);
-
-    if (totalEstimatedSize > 1040000) {
-      alert(`The project is too large (${Math.round(totalEstimatedSize/1024)}KB). Firestore limits each document to 1024KB. \n\nTips to fix: \n1. Reduce the number of gallery images (max 10). \n2. Try uploading slightly smaller original files. \n3. Shorten the description.`);
-      setIsUploading(false);
-      return;
-    }
+    console.log('isUploading set to true');
 
     try {
+      // Use the images if provided, otherwise fallback to thumbnail
+      let finalImages = newImages.length > 0 ? newImages : [finalThumbnail];
+
+      const getPayloadSize = (thumb: string, imgs: string[]) => {
+        const dataSize = (thumb?.length || 0) + imgs.reduce((acc, img) => acc + (img?.length || 0), 0);
+        return dataSize + newTitle.length + (newDescription?.length || 0) + 30000;
+      };
+
+      let totalEstimatedSize = getPayloadSize(finalThumbnail, finalImages);
+      console.log(`Estimated upload size: ${Math.round(totalEstimatedSize/1024)}KB`);
+
+      if (totalEstimatedSize > 1048000) {
+        alert(`용량이 너무 큽니다 (${Math.round(totalEstimatedSize/1024)}KB / 1024KB 제한). \n\n해결 방법: \n1. 이미지 개수를 줄여주세요 (현재 ${finalImages.length}개). \n2. 썸네일을 다른 사진으로 교체해보세요.`);
+        setIsUploading(false);
+        return;
+      }
+
       const existingProject = editingId ? projects.find(p => p.id === editingId) : null;
       
       const projectData: any = {
@@ -266,18 +255,28 @@ export default function PortfolioSection() {
         imageUrl: finalThumbnail, 
         images: finalImages,
         order: Number(newOrder) || 0,
-        createdAt: editingId ? (existingProject?.createdAt || serverTimestamp()) : serverTimestamp()
       };
 
       if (editingId) {
-        await updateDoc(doc(db, 'projects', editingId), {
-          ...projectData,
-          updatedAt: serverTimestamp()
-        });
+        projectData.updatedAt = serverTimestamp();
+        projectData.createdAt = existingProject?.createdAt || serverTimestamp();
       } else {
-        await addDoc(collection(db, 'projects'), projectData);
+        projectData.createdAt = serverTimestamp();
       }
 
+      console.log('Sending data to Firestore...', editingId ? 'Update' : 'Create');
+
+      if (editingId) {
+        const docRef = doc(db, 'projects', editingId);
+        await updateDoc(docRef, projectData);
+      } else {
+        const colRef = collection(db, 'projects');
+        await addDoc(colRef, projectData);
+      }
+
+      console.log('Firestore operation success!');
+      
+      // Cleanup
       setShowAddModal(false);
       setEditingId(null);
       setNewTitle('');
@@ -285,19 +284,25 @@ export default function PortfolioSection() {
       setNewDescription('');
       setNewImages([]);
       setNewThumbnail(null);
-      alert('Project saved successfully!');
+      
+      alert('성공적으로 저장되었습니다!');
     } catch (err: any) {
-      console.error('Save Error:', err);
-      // Basic catch-all if handler fails
+      console.error('CRITICAL SAVE ERROR DETECTED:', err);
+      
+      let errorMessage = '저장 중 오류가 발생했습니다.';
       if (err.code === 'permission-denied') {
-        alert('Permission Denied: You must be logged in as admin to save.');
-      } else if (err.message?.includes('too large') || err.message?.includes('1,048,576 bytes')) {
-        alert('Total data exceeded 1MB limit. Please remove an image and try again.');
+        errorMessage = '권한이 없습니다: 관리자 로그인이 필요합니다.';
+      } else if (err.message?.includes('too large') || err.message?.includes('1,048,576')) {
+        errorMessage = '데이터 용량이 1MB를 초과했습니다. 이미지를 한두 개 제거해 주세요.';
       } else {
-        alert(`Storage Error: ${err.message || 'Operation failed'}`);
+        errorMessage = `저장 실패: ${err.message || '알 수 없는 오류'}`;
       }
+      
+      alert(errorMessage);
     } finally {
       setIsUploading(false);
+      console.log('isUploading reset to false');
+      console.log('--- Handle Save Project Finished ---');
     }
   };
 

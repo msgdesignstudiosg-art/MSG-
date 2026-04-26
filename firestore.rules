@@ -15,13 +15,14 @@ service cloud.firestore {
     }
 
     function isValidProject(data) {
-      return data.keys().hasAll(['title', 'category', 'imageUrl', 'createdAt', 'order', 'images']) &&
-             data.title is string && data.title.size() <= 200 &&
+      return data.keys().hasAll(['title', 'category', 'imageUrl', 'order', 'images']) &&
+             data.title is string && data.title.size() <= 300 &&
              data.category is string &&
              data.imageUrl is string &&
              data.order is number &&
              data.images is list &&
              (data.keys().hasAny(['description']) ? data.description is string : true) &&
+             (data.keys().hasAny(['createdAt']) ? true : true) &&
              (data.keys().hasAny(['updatedAt']) ? true : true);
     }
 
