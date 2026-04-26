@@ -12,25 +12,6 @@ export let firebaseConfig: any = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)'
 };
-
-// Fallback for AI Studio environment if env vars aren't set
-// In production/build, this file might be missing because it's gitignored.
-// We use a logic that works even if the file is missing during build.
-const loadLocalConfig = async () => {
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.toLowerCase() === 'placeholder') {
-    try {
-      // Use a dynamic import to avoid build-time failure if the file is missing
-      // The /* @vite-ignore */ is important here for some setups, but here we just want it to be optional
-      const localConfig = await import('../../firebase-applet-config.json');
-      if (localConfig && localConfig.default && localConfig.default.apiKey && localConfig.default.apiKey.toLowerCase() !== 'placeholder') {
-        firebaseConfig = {
-          ...firebaseConfig,
-          ...localConfig.default,
-          firestoreDatabaseId: localConfig.default.firestoreDatabaseId || firebaseConfig.firestoreDatabaseId
-        };
-        return true;
-      }
-    } catch (e) {
       // Ignore error if file is missing (expected in production)
     }
   }
