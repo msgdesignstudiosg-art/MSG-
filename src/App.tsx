@@ -9,21 +9,20 @@ import ReviewsSection from './components/ReviewsSection';
 import { motion } from 'motion/react';
 import { isConfigValid, firebaseConfig } from './lib/firebase';
 import { useEffect, useState } from 'react';
+import { useLang } from './contexts/LanguageContext';
+import { t } from './lib/translations';
 
 export default function App() {
   const [configChecked, setConfigChecked] = useState(false);
   const [isValid, setIsValid] = useState(true);
+  const { lang } = useLang();
 
   useEffect(() => {
-    // Check config on mount
     setIsValid(isConfigValid(firebaseConfig));
     setConfigChecked(true);
-
-    // Some configurations might load asynchronously from fallback local file in AI Studio
     const timer = setTimeout(() => {
       setIsValid(isConfigValid(firebaseConfig));
     }, 2000);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -41,15 +40,13 @@ export default function App() {
         <LandingPage />
         <AboutStudio />
         <ServicesSection />
-        
         <ProcessSection />
         <PortfolioSection />
         <ReviewsSection />
       </main>
 
-      {/* Final CTA with Glassmorphism */}
+      {/* Final CTA */}
       <section id="contact" className="relative py-24 sm:py-32 md:py-48 px-4 sm:px-6 md:px-12 overflow-hidden flex items-center justify-center min-h-[70vh] md:min-h-[80vh] bg-black">
-        {/* Floating background elements - with more movement */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-50 md:opacity-100">
           {[
             { color: '#ccff00', top: '15%', left: '10%', scale: 1.2 },
@@ -77,11 +74,7 @@ export default function App() {
                 x: [0, i % 2 === 0 ? 50 : -50, 0],
                 rotate: [0, i % 2 === 0 ? 35 : -35, 0]
               }}
-              transition={{ 
-                duration: 6 + i,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+              transition={{ duration: 6 + i, repeat: Infinity, ease: "easeInOut" }}
             >
               <svg width="100%" height="100%" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl opacity-60">
                 <path d="M42 20H92C96.4183 20 100 23.5817 100 28V72C100 76.4183 96.4183 80 92 80H8C3.58172 80 0 76.4183 0 72V8C0 3.58172 3.58172 0 8 0H32L42 20Z" fill={item.color}/>
@@ -98,15 +91,15 @@ export default function App() {
         >
           <div className="bg-white/5 backdrop-blur-[100px] p-6 sm:p-14 md:p-20 lg:p-24 rounded-[2rem] sm:rounded-[3.5rem] md:rounded-[4rem] border border-white/10 text-center shadow-2xl">
             <h2 className="text-[10vw] sm:text-7xl md:text-8xl lg:text-[8rem] xl:text-[9rem] font-black leading-[0.9] tracking-tighter uppercase mb-8 md:mb-12 text-white italic px-1">
-              LET’S <span className="font-serif font-light text-zinc-400 not-italic">CREATE</span><br />
+              LET'S <span className="font-serif font-light text-zinc-400 not-italic">CREATE</span><br />
               SOMETHING <span className="font-serif font-light text-zinc-400 not-italic">GREAT</span>
             </h2>
             <div className="flex flex-col items-center gap-4 mb-8 md:mb-16 px-4">
               <div className="w-12 h-[1px] bg-[#ccff00]/30" />
               <p className="text-[11px] sm:text-base md:text-lg font-sans italic font-light uppercase tracking-[0.2em] md:tracking-[0.25em] text-zinc-400 leading-relaxed text-center">
-                보는 순간 느껴지는 감각,
+                {t.cta.sub[lang]}
                 <span className="block mt-2 text-[#ccff00] font-semibold tracking-[0.3em] md:tracking-[0.35em] text-base md:text-lg">
-                  MSG DESIGN STUDIO와 함께하세요.
+                  {t.cta.subHighlight[lang]}
                 </span>
               </p>
             </div>
@@ -118,21 +111,21 @@ export default function App() {
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 bg-white text-black text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] rounded-full hover:bg-[#ccff00] transition-all shadow-2xl shadow-white/5"
               >
-                카카오톡으로 문의하기
+                {t.cta.kakaoBtn[lang]}
               </a>
               <motion.a 
                 href="mailto:hello@msgdesignstudio.com"
                 target="_top"
                 className="w-full sm:w-auto px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 border-2 border-white/20 text-white text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] rounded-full hover:bg-white hover:text-black transition-all"
               >
-                이메일로 문의하기
+                {t.cta.emailBtn[lang]}
               </motion.a>
             </div>
           </div>
         </motion.div>
       </section>
 
-      {/* Footer / Bottom Rail */}
+      {/* Footer */}
       <footer className="relative z-10 p-8 sm:p-12 md:p-24 border-t border-white/5 bg-black/40 backdrop-blur-3xl">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
           <div className="flex flex-col sm:flex-row gap-12 md:gap-20 w-full md:w-auto">
@@ -157,7 +150,7 @@ export default function App() {
                   hello@msgdesignstudio.com
                 </a>
                 <div className="text-[8px] md:text-[10px] text-zinc-600 uppercase tracking-widest leading-relaxed">
-                  613-33-06171 대표자 김수빈
+                  {t.footer.bizInfo[lang]}
                 </div>
               </div>
             </div>
@@ -189,5 +182,3 @@ export default function App() {
     </div>
   );
 }
-
-
