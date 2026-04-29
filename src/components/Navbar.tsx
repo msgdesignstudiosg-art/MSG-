@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import InquiryModal from './InquiryModal';
+import { useLang } from '../contexts/LanguageContext';
+import { t } from '../lib/translations';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
+  const { lang, setLang } = useLang();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,13 +70,23 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        {/* 언어 토글 버튼 */}
+        <button
+          onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
+          className="hidden md:flex items-center gap-1 px-4 py-2 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-widest hover:border-[#ccff00] transition-all"
+        >
+          <span className={lang === 'en' ? 'text-[#ccff00]' : 'text-zinc-500'}>ENG</span>
+          <span className="text-zinc-600 mx-1">/</span>
+          <span className={lang === 'ko' ? 'text-[#ccff00]' : 'text-zinc-500'}>KOR</span>
+        </button>
+
         <a 
           href="http://pf.kakao.com/_CybjX/chat"
           target="_blank"
           rel="noopener noreferrer"
           className="hidden md:flex px-8 py-3 bg-white text-black text-[10px] font-bold uppercase rounded-full hover:bg-[#ccff00] transition-all shadow-xl hover:shadow-[#ccff00]/20"
         >
-          Start a Project
+          {t.nav.startProject[lang]}
         </a>
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -99,12 +112,23 @@ export default function Navbar() {
                 alt="MSG STUDIO" 
                 className="h-8 w-auto invert brightness-0"
               />
-              <button 
-                onClick={() => setIsMenuOpen(false)}
-                className="p-3 bg-white/5 rounded-full border border-white/10"
-              >
-                <X className="w-6 h-6 text-white" />
-              </button>
+              <div className="flex items-center gap-3">
+                {/* 모바일 언어 토글 */}
+                <button
+                  onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
+                  className="px-4 py-2 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-widest hover:border-[#ccff00] transition-all"
+                >
+                  <span className={lang === 'en' ? 'text-[#ccff00]' : 'text-zinc-500'}>ENG</span>
+                  <span className="text-zinc-600 mx-1">/</span>
+                  <span className={lang === 'ko' ? 'text-[#ccff00]' : 'text-zinc-500'}>KOR</span>
+                </button>
+                <button 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-3 bg-white/5 rounded-full border border-white/10"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-col gap-8 mt-4">
@@ -130,11 +154,11 @@ export default function Navbar() {
                 rel="noopener noreferrer"
                 className="block w-full py-5 bg-white text-black text-center font-bold uppercase rounded-2xl hover:bg-[#ccff00] transition-all"
               >
-                Kakaotalk 문의하기
+                {t.nav.kakao[lang]}
               </a>
               <div className="flex justify-between items-center text-[10px] font-mono uppercase tracking-widest text-zinc-500">
                 <span>msg design studio</span>
-                <span>© 2024</span>
+                <span>© 2026</span>
               </div>
             </div>
           </motion.div>
