@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
 import { motion } from 'motion/react';
+import { useLang } from '../contexts/LanguageContext';
+import { t } from '../lib/translations';
 
 const folderItems = [
-  { id: 'f1', title: 'CONCEPT DEVELOPMENT', color: '#ccff00', x: '10%', y: '20%' }, // Neon Lime
-  { id: 'f2', title: 'GRAPHIC DESIGN', color: '#ff00ff', x: '70%', y: '15%' }, // Neon Pink
-  { id: 'f3', title: 'BRANDING', color: '#00ffff', x: '80%', y: '60%' }, // Neon Cyan
-  { id: 'f4', title: 'PACKAGING', color: '#FF5F1F', x: '15%', y: '75%' }, // Fluorescent Orange
+  { id: 'f1', title: 'CONCEPT DEVELOPMENT', color: '#ccff00', x: '10%', y: '20%' },
+  { id: 'f2', title: 'GRAPHIC DESIGN', color: '#ff00ff', x: '70%', y: '15%' },
+  { id: 'f3', title: 'BRANDING', color: '#00ffff', x: '80%', y: '60%' },
+  { id: 'f4', title: 'PACKAGING', color: '#FF5F1F', x: '15%', y: '75%' },
 ];
 
 const FolderIcon = ({ color }: { color: string }) => (
@@ -16,11 +18,11 @@ const FolderIcon = ({ color }: { color: string }) => (
 
 export default function LandingPage() {
   const constraintsRef = useRef(null);
+  const { lang } = useLang();
 
   return (
     <section id="home" ref={constraintsRef} className="relative min-h-[100svh] flex flex-col items-center justify-center px-6 md:px-12 py-20 overflow-hidden bg-[#0A0A0B]">
       
-      {/* High Impact Background Typography */}
       <div className="absolute inset-0 z-0 pointer-events-none flex flex-col items-center justify-center select-none overflow-hidden opacity-30 md:opacity-80">
         <h1 className="text-[22vw] md:text-[15vw] lg:text-[18vw] font-bold leading-[0.8] tracking-tighter text-white/5 uppercase mix-blend-lighten">
           Ways To
@@ -42,19 +44,19 @@ export default function LandingPage() {
         >
           <div className="flex items-center gap-3 mb-6 md:mb-10 justify-center">
             <span className="glass px-4 md:px-6 py-2 rounded-full text-[8px] md:text-[11px] font-mono uppercase tracking-[0.2em] md:tracking-[0.4em] text-[#ccff00]">
-               Est. 2024 / GRAPHIC DESIGN STUDIO
+              {t.landing.badge[lang]}
             </span>
           </div>
           
           <h2 className="text-[9vw] sm:text-6xl md:text-7xl lg:text-8xl font-sans font-black leading-[1.05] mb-6 md:mb-12 tracking-tighter uppercase text-center flex flex-col items-center">
-             <span className="block">WE DON’T JUST</span>
-             <span className="block">CREATE VISUALS.</span>
-             <span className="italic font-serif text-white/40 uppercase block mt-2 sm:mt-0 leading-tight">WE DESIGN EXPERIENCES.</span>
+            <span className="block">WE DON'T JUST</span>
+            <span className="block">CREATE VISUALS.</span>
+            <span className="italic font-serif text-white/40 uppercase block mt-2 sm:mt-0 leading-tight">WE DESIGN EXPERIENCES.</span>
           </h2>
           
           <div className="max-w-3xl mx-auto mb-10 md:mb-16">
             <p className="text-sm sm:text-xl md:text-2xl text-zinc-300 font-light leading-relaxed px-6">
-              저희 MSG 디자인 스튜디오는 단순히 포장하지 않습니다. <br className="hidden sm:block" /> 브랜드의 경험을 디자인합니다.
+              {t.landing.sub[lang]}
             </p>
           </div>
 
@@ -66,7 +68,7 @@ export default function LandingPage() {
               whileTap={{ scale: 0.95 }}
               className="w-full sm:w-auto px-8 sm:px-10 md:px-14 py-4 sm:py-5 md:py-6 bg-white text-[#0A0A0B] text-xs sm:text-sm font-bold uppercase tracking-widest rounded-full hover:bg-[#ccff00] hover:shadow-[0_0_30px_rgba(204,255,0,0.3)] transition-all flex items-center justify-center gap-3"
             >
-              Email Us <span className="opacity-20 font-light hidden sm:inline">|</span> <span className="hidden sm:inline">hello@msgdesignstudio.com</span>
+              {t.landing.emailBtn[lang]} <span className="opacity-20 font-light hidden sm:inline">|</span> <span className="hidden sm:inline">hello@msgdesignstudio.com</span>
             </motion.a>
             
             <motion.a 
@@ -77,14 +79,12 @@ export default function LandingPage() {
               whileTap={{ scale: 0.95 }}
               className="w-full sm:w-auto px-8 sm:px-10 md:px-14 py-4 sm:py-5 md:py-6 bg-[#F7E600] text-[#3A1D1D] text-xs sm:text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all shadow-xl flex items-center justify-center gap-3"
             >
-              KakaoTalk <span className="opacity-20 font-light hidden sm:inline">|</span> <span className="hidden sm:inline">카카오톡 상담</span>
-              <span className="sm:hidden">상담하기</span>
+              {t.landing.kakaoBtn[lang]}
             </motion.a>
           </div>
         </motion.div>
       </div>
 
-      {/* Draggable Folders - Referencing the visual sentiment */}
       {folderItems.map((item, idx) => (
         <motion.div
           key={item.id}
@@ -100,16 +100,8 @@ export default function LandingPage() {
           transition={{ 
             opacity: { duration: 0.8 },
             scale: { duration: 0.8 },
-            y: {
-              duration: 3 + idx,
-              repeat: Infinity,
-              ease: "easeInOut"
-            },
-            rotate: {
-              duration: 5 + idx,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }
+            y: { duration: 3 + idx, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 5 + idx, repeat: Infinity, ease: "easeInOut" }
           }}
           className="absolute z-20 cursor-grab active:cursor-grabbing pointer-events-auto flex flex-col items-center gap-4"
         >
@@ -123,7 +115,7 @@ export default function LandingPage() {
       ))}
 
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-4 text-zinc-600 text-[10px] font-mono uppercase tracking-[0.3em]">
-        <span>Scroll to Explore</span>
+        <span>{t.landing.scroll[lang]}</span>
         <motion.div 
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
