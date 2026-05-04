@@ -112,8 +112,8 @@ export default function PortfolioSection() {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1920;
-          const MAX_HEIGHT = 1920;
+          const MAX_WIDTH = 3840;
+          const MAX_HEIGHT = 8000;
           let width = img.width;
           let height = img.height;
           if (width > MAX_WIDTH || height > MAX_HEIGHT) {
@@ -152,7 +152,7 @@ export default function PortfolioSection() {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_DIM = 1920;
+        const MAX_DIM = 3840;
         let width = img.width;
         let height = img.height;
         if (width > MAX_DIM || height > MAX_DIM) {
