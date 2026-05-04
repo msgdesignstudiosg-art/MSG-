@@ -26,7 +26,6 @@ export default function PortfolioSection() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // Form State
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState('Packaging');
   const [newDescription, setNewDescription] = useState('');
@@ -36,23 +35,22 @@ export default function PortfolioSection() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
   const uploadImageToStorage = async (base64: string) => {
-  if (!base64.startsWith('data:image')) return base64;
-
-  const fileName = `portfolio/${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const storageRef = ref(storage, fileName);
-
-  await uploadString(storageRef, base64, 'data_url', {
-  contentType: base64.includes('image/gif')
-    ? 'image/gif'
-    : base64.includes('image/webp')
-    ? 'image/webp'
-    : base64.includes('image/png')
-    ? 'image/png'
-    : 'image/jpeg',
-});
-  return await getDownloadURL(storageRef);
-};
+    if (!base64.startsWith('data:image')) return base64;
+    const fileName = `portfolio/${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const storageRef = ref(storage, fileName);
+    await uploadString(storageRef, base64, 'data_url', {
+      contentType: base64.includes('image/gif')
+        ? 'image/gif'
+        : base64.includes('image/webp')
+        ? 'image/webp'
+        : base64.includes('image/png')
+        ? 'image/png'
+        : 'image/jpeg',
+    });
+    return await getDownloadURL(storageRef);
+  };
 
   useEffect(() => {
     const q = query(collection(db, 'projects'), orderBy('order', 'asc'));
@@ -66,26 +64,13 @@ export default function PortfolioSection() {
     });
 
     const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
-      console.log("Auth state updated:", u ? u.email : "No user", "Verified:", u?.emailVerified);
       setUser(u);
-      
       const isEmailMatch = u?.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
       const isVerified = u?.emailVerified === true;
-      const isUserAdmin = isEmailMatch && isVerified;
-      
-      console.log("Admin Status Check:", { isEmailMatch, isVerified, isUserAdmin });
-      setIsAdmin(isUserAdmin);
-      
-      if (u && isEmailMatch && !isVerified) {
-        console.warn('Admin email detected but not verified. Access restricted.');
-      }
+      setIsAdmin(isEmailMatch && isVerified);
     });
 
-    const handleAdminTrigger = () => {
-      if (!user) {
-        handleLogin();
-      }
-    };
+    const handleAdminTrigger = () => { if (!user) handleLogin(); };
     window.addEventListener('trigger-admin-login', handleAdminTrigger);
 
     return () => {
@@ -102,11 +87,7 @@ export default function PortfolioSection() {
 
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.error(err);
-    }
+    try { await signInWithPopup(auth, provider); } catch (err) { console.error(err); }
   };
 
   const handleLogout = () => signOut(auth);
@@ -123,20 +104,23 @@ export default function PortfolioSection() {
     Array.from(files).forEach((file: File) => {
       const reader = new FileReader();
       reader.onloadend = () => {
+        // GIF는 canvas 변환 없이 그대로 사용 (애니메이션 보존)
+        if (file.type === 'image/gif') {
+          setNewImages(prev => [...prev, reader.result as string]);
+          return;
+        }
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1920; 
+          const MAX_WIDTH = 1920;
           const MAX_HEIGHT = 1920;
           let width = img.width;
           let height = img.height;
-
           if (width > MAX_WIDTH || height > MAX_HEIGHT) {
             const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
             width *= ratio;
             height *= ratio;
           }
-
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
@@ -145,8 +129,7 @@ export default function PortfolioSection() {
             ctx.imageSmoothingQuality = 'high';
             ctx.drawImage(img, 0, 0, width, height);
           }
-          
-          const dataUrl = canvas.toDataURL('image/webp', 0.82); 
+          const dataUrl = canvas.toDataURL('image/webp', 0.95);
           setNewImages(prev => [...prev, dataUrl]);
         };
         img.src = reader.result as string;
@@ -161,20 +144,22 @@ export default function PortfolioSection() {
 
     const reader = new FileReader();
     reader.onloadend = () => {
+      // GIF는 canvas 변환 없이 그대로 사용 (애니메이션 보존)
+      if (file.type === 'image/gif') {
+        setNewThumbnail(reader.result as string);
+        return;
+      }
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        // Thumbnails can be smaller (800px) to save document space for gallery images
-        const MAX_DIM = 1920; 
+        const MAX_DIM = 1920;
         let width = img.width;
         let height = img.height;
-
         if (width > MAX_DIM || height > MAX_DIM) {
           const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
           width *= ratio;
           height *= ratio;
         }
-
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
@@ -183,8 +168,7 @@ export default function PortfolioSection() {
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, 0, 0, width, height);
         }
-        
-        const dataUrl = canvas.toDataURL('image/webp', 0.85);
+        const dataUrl = canvas.toDataURL('image/webp', 0.95);
         setNewThumbnail(dataUrl);
       };
       img.src = reader.result as string;
@@ -236,62 +220,41 @@ export default function PortfolioSection() {
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const handleSaveProject = async () => {
-    console.log('--- Handle Save Project Started ---');
     setSaveError(null);
-    if (isUploading) {
-      console.log('Already uploading, skipping...');
-      return;
-    }
-    
-    // Final validation
-    if (!newTitle.trim()) {
-      alert('Project title is required.');
-      return;
-    }
-    
+    if (isUploading) return;
+    if (!newTitle.trim()) { alert('Project title is required.'); return; }
+
     let finalThumbnail = newThumbnail || (newImages.length > 0 ? newImages[0] : null);
-    if (!finalThumbnail) {
-      alert('Please provide at least one image or a thumbnail.');
-      return;
-    }
+    if (!finalThumbnail) { alert('Please provide at least one image or a thumbnail.'); return; }
 
     setIsUploading(true);
-    console.log('isUploading set to true');
 
     try {
       let finalImages = newImages.length > 0 ? newImages : [finalThumbnail];
-      console.log('Preparing data for Firestore. Gallery count:', finalImages.length);
 
       const getPayloadSize = (thumb: string, imgs: string[]) => {
-        const dataSize = (thumb?.length || 0) + imgs.reduce((acc, img) => acc + (img?.length || 0), 0);
-        return dataSize + newTitle.length + (newDescription?.length || 0) + 40000;
+        return (thumb?.length || 0) + imgs.reduce((acc, img) => acc + (img?.length || 0), 0) + newTitle.length + (newDescription?.length || 0) + 40000;
       };
 
       let totalEstimatedSize = getPayloadSize(finalThumbnail, finalImages);
-      console.log(`Estimated upload size: ${Math.round(totalEstimatedSize/1024)}KB`);
 
       if (totalEstimatedSize > 10 * 1024 * 1024) {
-  console.error('Payload size exceeds 10MB limit');
-  alert(`용량이 너무 큽니다 (${Math.round(totalEstimatedSize / 1024)}KB / 10240KB 제한)`);
-  setIsUploading(false);
- return;
-}
+        alert(`용량이 너무 큽니다 (${Math.round(totalEstimatedSize / 1024)}KB / 10240KB 제한)`);
+        setIsUploading(false);
+        return;
+      }
 
-      const uploadedThumbnail = finalThumbnail
-  ? await uploadImageToStorage(finalThumbnail)
-  : '';
+      const uploadedThumbnail = finalThumbnail ? await uploadImageToStorage(finalThumbnail) : '';
+      const uploadedImages = await Promise.all(finalImages.map((img) => uploadImageToStorage(img)));
 
-const uploadedImages = await Promise.all(
-  finalImages.map((img) => uploadImageToStorage(img))
-);
       const existingProject = editingId ? projects.find(p => p.id === editingId) : null;
-      
+
       const projectData: any = {
         title: newTitle.trim(),
         category: newCategory,
-        description: newDescription.trim(), 
+        description: newDescription.trim(),
         imageUrl: uploadedThumbnail,
-images: uploadedImages,
+        images: uploadedImages,
         order: Number(newOrder) || 0,
       };
 
@@ -302,19 +265,12 @@ images: uploadedImages,
         projectData.createdAt = serverTimestamp();
       }
 
-      console.log('Sending data to Firestore...', editingId ? 'Update' : 'Create');
-
       if (editingId) {
-        const docRef = doc(db, 'projects', editingId);
-        await updateDoc(docRef, projectData);
+        await updateDoc(doc(db, 'projects', editingId), projectData);
       } else {
-        const colRef = collection(db, 'projects');
-        await addDoc(colRef, projectData);
+        await addDoc(collection(db, 'projects'), projectData);
       }
 
-      console.log('Firestore operation success!');
-      
-      // Cleanup
       setShowAddModal(false);
       setEditingId(null);
       setNewTitle('');
@@ -322,11 +278,8 @@ images: uploadedImages,
       setNewDescription('');
       setNewImages([]);
       setNewThumbnail(null);
-      
       alert('성공적으로 저장되었습니다!');
     } catch (err: any) {
-      console.error('CRITICAL SAVE ERROR DETECTED:', err);
-      
       let errorMessage = '저장 중 오류가 발생했습니다.';
       if (err.code === 'permission-denied') {
         errorMessage = '권한이 없습니다: 관리자 로그인이 필요합니다.';
@@ -335,27 +288,19 @@ images: uploadedImages,
       } else {
         errorMessage = `저장 실패: ${err.message || '알 수 없는 오류'}`;
       }
-      
       setSaveError(errorMessage);
       alert(errorMessage);
     } finally {
       setIsUploading(false);
-      console.log('isUploading reset to false');
-      console.log('--- Handle Save Project Finished ---');
     }
   };
 
   const handleDelete = async (id: string) => {
-    console.log('--- Handle Delete Start ---');
-    console.log('Project ID to delete:', id);
     if (window.confirm('정말로 삭제하시겠습니까?')) {
       try {
-        console.log('Attempting deleteDoc...');
         await deleteDoc(doc(db, 'projects', id));
-        console.log('deleteDoc successful');
         alert('삭제되었습니다.');
       } catch (err: any) {
-        console.error('Delete error details:', err);
         if (err.code === 'permission-denied') {
           alert('권한이 없습니다: 관리자 권한이 필요합니다. (Permission Denied)');
         } else {
@@ -363,7 +308,6 @@ images: uploadedImages,
         }
       }
     }
-    console.log('--- Handle Delete Finished ---');
   };
 
   return (
@@ -398,10 +342,7 @@ images: uploadedImages,
                </>
              ) : (
                <button 
-                onClick={() => {
-                  console.log("Login button clicked");
-                  handleLogin();
-                }} 
+                onClick={handleLogin}
                 className="text-zinc-600 hover:text-[#ccff00] transition-colors p-2 flex items-center gap-2 text-xs font-mono"
                >
                  <LogIn className="w-4 h-4"/> Admin
@@ -436,18 +377,12 @@ images: uploadedImages,
                           <button 
                             onClick={(e) => { e.stopPropagation(); openEditModal(project); }}
                             className="p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-[#ccff00] hover:text-black transition-all border border-white/10"
-                            title="Edit Project"
                           >
                             <Plus className="w-4 h-4 rotate-45" />
                           </button>
                           <button 
-                           onClick={(e) => { 
-                             console.log('Trash icon clicked for project:', project.id);
-                             e.stopPropagation(); 
-                             handleDelete(project.id); 
-                           }}
+                           onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
                            className="p-3 bg-red-500/20 backdrop-blur-md text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
-                           title="Delete Project"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -461,7 +396,7 @@ images: uploadedImages,
         )}
       </div>
 
-      {/* Add Modal */}
+      {/* Add/Edit Modal */}
       <AnimatePresence>
         {showAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 pb-20">
@@ -478,10 +413,7 @@ images: uploadedImages,
               exit={{ scale: 0.9, opacity: 0 }}
               className="relative w-full max-w-2xl glass-panel p-10 rounded-[3rem] shadow-2xl overflow-y-auto max-h-[85vh]"
             >
-              <button 
-                onClick={() => setShowAddModal(false)}
-                className="absolute top-6 right-6 text-zinc-500 hover:text-white"
-              >
+              <button onClick={() => setShowAddModal(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white">
                 <X className="w-6 h-6" />
               </button>
               
@@ -497,7 +429,6 @@ images: uploadedImages,
                       className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors"
                     />
                   </div>
-                  
                   <div>
                     <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Category</label>
                     <select 
@@ -562,13 +493,14 @@ images: uploadedImages,
                       </div>
                     )}
                     <div className="text-[10px] text-zinc-500 max-w-[200px] leading-relaxed">
-                      이 이미지는 포트폴리오 리스트에 보여지는 <span className="text-[#ccff00]">메인 이미지</span>가 됩니다.
+                      이 이미지는 포트폴리오 리스트에 보여지는 <span className="text-[#ccff00]">메인 이미지</span>가 됩니다.<br/>
+                      <span className="text-zinc-600">GIF 업로드 가능 ✓</span>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Gallery Images (Max 10)</label>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Gallery Images (Max 10) — GIF 지원 ✓</label>
                   <div className="grid grid-cols-5 gap-3 mb-4">
                     {newImages.map((img, i) => (
                       <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-white/10">
