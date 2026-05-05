@@ -39,18 +39,11 @@ export default function PortfolioSection() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // 파일을 Firebase Storage에 업로드하고 URL 반환
   const uploadFileToStorage = async (file: File): Promise<string> => {
     const fileName = `portfolio/${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`;
     const storageRef = ref(storage, fileName);
     await uploadBytes(storageRef, file);
     return await getDownloadURL(storageRef);
-  };
-
-  // 이미 URL인 경우(기존 이미지) 그대로 반환
-  const uploadFileOrUrl = async (fileOrUrl: File | string): Promise<string> => {
-    if (typeof fileOrUrl === 'string') return fileOrUrl;
-    return await uploadFileToStorage(fileOrUrl);
   };
 
   useEffect(() => {
@@ -96,20 +89,16 @@ export default function PortfolioSection() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-
     if (newImageFiles.length + files.length > 10) {
       alert('최대 10개까지 업로드할 수 있습니다.');
       return;
     }
-
     Array.from(files).forEach((file: File) => {
-      // 미리보기 생성
       const reader = new FileReader();
       reader.onloadend = () => {
         setNewImagePreviews(prev => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
-      // 실제 파일 저장
       setNewImageFiles(prev => [...prev, file]);
     });
   };
@@ -117,7 +106,6 @@ export default function PortfolioSection() {
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onloadend = () => {
       setNewThumbnailPreview(reader.result as string);
@@ -149,7 +137,6 @@ export default function PortfolioSection() {
     setNewTitle(project.title);
     setNewCategory(project.category);
     setNewDescription(project.description || '');
-    // 편집 시 기존 이미지는 URL 문자열로 previews에 저장, files는 비움
     setNewImageFiles([]);
     setNewImagePreviews(project.images || [project.imageUrl]);
     setNewThumbnailFile(null);
@@ -168,7 +155,6 @@ export default function PortfolioSection() {
     setIsUploading(true);
 
     try {
-      // 썸네일 업로드
       let uploadedThumbnail: string;
       if (newThumbnailFile) {
         uploadedThumbnail = await uploadFileToStorage(newThumbnailFile);
@@ -176,18 +162,12 @@ export default function PortfolioSection() {
         uploadedThumbnail = newThumbnailPreview!;
       }
 
-      // 갤러리 이미지 업로드
-      // 편집 시: newImagePreviews에 기존 URL + 새 파일 미리보기가 섞여있을 수 있음
-      // newImageFiles는 새로 추가된 파일만 있음
       let uploadedImages: string[] = [];
-
       if (editingId) {
-        // 편집 모드: URL은 그대로, 새 파일은 업로드
         const existingUrls = newImagePreviews.filter(p => p.startsWith('http'));
         const newFileUploads = await Promise.all(newImageFiles.map(f => uploadFileToStorage(f)));
         uploadedImages = [...existingUrls, ...newFileUploads];
       } else {
-        // 신규 모드: 모든 파일 업로드
         uploadedImages = await Promise.all(newImageFiles.map(f => uploadFileToStorage(f)));
       }
 
@@ -264,22 +244,18 @@ export default function PortfolioSection() {
               Selected <span className="italic font-serif">Creations</span>
             </h3>
           </div>
-
           <div className="flex gap-4 items-center">
             {user && (
               <div className="flex flex-col items-end mr-4">
                 <span className="text-[10px] font-mono text-zinc-500 uppercase">Logged in as</span>
                 <span className={`text-xs font-mono ${isAdmin ? 'text-[#ccff00]' : 'text-zinc-400'}`}>
-                  {user.email} {!isAdmin && user.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim() ? '(Not Verified)' : ''}
+                  {user.email}{!isAdmin && user.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim() ? ' (Not Verified)' : ''}
                 </span>
               </div>
             )}
             {isAdmin ? (
               <>
-                <button
-                  onClick={openAddModal}
-                  className="glass px-6 py-3 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-all font-medium bg-white/5 border border-white/10"
-                >
+                <button onClick={openAddModal} className="glass px-6 py-3 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-all font-medium bg-white/5 border border-white/10">
                   <Plus className="w-4 h-4" /> Add Work
                 </button>
                 <button onClick={handleLogout} className="text-zinc-500 hover:text-white transition-colors p-2" title="Logout">
@@ -287,10 +263,7 @@ export default function PortfolioSection() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={handleLogin}
-                className="text-zinc-600 hover:text-[#ccff00] transition-colors p-2 flex items-center gap-2 text-xs font-mono"
-              >
+              <button onClick={handleLogin} className="text-zinc-600 hover:text-[#ccff00] transition-colors p-2 flex items-center gap-2 text-xs font-mono">
                 <LogIn className="w-4 h-4" /> Admin
               </button>
             )}
@@ -320,16 +293,10 @@ export default function PortfolioSection() {
                     <h4 className="text-2xl font-medium">{project.title}</h4>
                     {isAdmin && (
                       <div className="absolute top-6 right-6 flex gap-3 z-[60]">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); openEditModal(project); }}
-                          className="p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-[#ccff00] hover:text-black transition-all border border-white/10"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); openEditModal(project); }} className="p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-[#ccff00] hover:text-black transition-all border border-white/10">
                           <Plus className="w-4 h-4 rotate-45" />
                         </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
-                          className="p-3 bg-red-500/20 backdrop-blur-md text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }} className="p-3 bg-red-500/20 backdrop-blur-md text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all border border-red-500/20">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -362,26 +329,16 @@ export default function PortfolioSection() {
               <button onClick={() => setShowAddModal(false)} className="absolute top-6 right-6 text-zinc-500 hover:text-white">
                 <X className="w-6 h-6" />
               </button>
-
               <h3 className="text-3xl font-light mb-8">{editingId ? 'Edit Portfolio Piece' : 'Add Portfolio Piece'}</h3>
-
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Project Title</label>
-                    <input
-                      value={newTitle}
-                      onChange={e => setNewTitle(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors"
-                    />
+                    <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors" />
                   </div>
                   <div>
                     <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Category</label>
-                    <select
-                      value={newCategory}
-                      onChange={e => setNewCategory(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors appearance-none"
-                    >
+                    <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors appearance-none">
                       <option value="Branding">Branding</option>
                       <option value="Packaging">Packaging</option>
                       <option value="VisualIdentity">Visual Identity</option>
@@ -392,23 +349,12 @@ export default function PortfolioSection() {
 
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Display Order (Smaller first)</label>
-                  <input
-                    type="number"
-                    value={newOrder}
-                    onChange={e => setNewOrder(parseInt(e.target.value) || 0)}
-                    className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors"
-                  />
+                  <input type="number" value={newOrder} onChange={e => setNewOrder(parseInt(e.target.value) || 0)} className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors" />
                 </div>
 
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Detailed Description</label>
-                  <textarea
-                    value={newDescription}
-                    onChange={e => setNewDescription(e.target.value)}
-                    rows={4}
-                    className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors resize-none"
-                    placeholder="Describe the project goals, process, and results..."
-                  />
+                  <textarea value={newDescription} onChange={e => setNewDescription(e.target.value)} rows={4} className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#ccff00] transition-colors resize-none" placeholder="Describe the project goals, process, and results..." />
                 </div>
 
                 <div>
@@ -417,21 +363,13 @@ export default function PortfolioSection() {
                     {newThumbnailPreview ? (
                       <div className="relative w-32 aspect-square rounded-2xl overflow-hidden border border-[#ccff00]/30">
                         <img src={newThumbnailPreview} className="w-full h-full object-cover" />
-                        <button
-                          onClick={() => { setNewThumbnailPreview(null); setNewThumbnailFile(null); }}
-                          className="absolute top-2 right-2 bg-black/60 p-1.5 rounded-full text-white hover:bg-[#ccff00] hover:text-black transition-all"
-                        >
+                        <button onClick={() => { setNewThumbnailPreview(null); setNewThumbnailFile(null); }} className="absolute top-2 right-2 bg-black/60 p-1.5 rounded-full text-white hover:bg-[#ccff00] hover:text-black transition-all">
                           <X className="w-3 h-3" />
                         </button>
                       </div>
                     ) : (
                       <div className="relative w-32 aspect-square border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center hover:border-[#ccff00] transition-all cursor-pointer group bg-white/5">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleThumbnailChange}
-                          className="absolute inset-0 opacity-0 cursor-pointer"
-                        />
+                        <input type="file" accept="image/*" onChange={handleThumbnailChange} className="absolute inset-0 opacity-0 cursor-pointer" />
                         <Plus className="w-6 h-6 text-zinc-600 group-hover:text-[#ccff00] mb-2" />
                         <span className="text-[8px] uppercase tracking-tighter text-zinc-500 group-hover:text-[#ccff00]">Upload</span>
                       </div>
@@ -445,30 +383,19 @@ export default function PortfolioSection() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">
-                    Gallery Images (Max 10) — JPG, PNG, GIF, WEBP 지원 ✓
-                  </label>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2">Gallery Images (Max 10) — GIF 지원 ✓</label>
                   <div className="grid grid-cols-5 gap-3 mb-4">
                     {newImagePreviews.map((preview, i) => (
                       <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-white/10">
                         <img src={preview} className="w-full h-full object-cover" />
-                        <button
-                          onClick={() => removeImage(i)}
-                          className="absolute top-1 right-1 bg-black/50 p-1 rounded-full text-white hover:bg-black"
-                        >
+                        <button onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-black/50 p-1 rounded-full text-white hover:bg-black">
                           <X className="w-3 h-3" />
                         </button>
                       </div>
                     ))}
                     {newImagePreviews.length < 10 && (
                       <div className="relative aspect-square border-2 border-dashed border-white/10 rounded-lg flex items-center justify-center hover:border-[#ccff00] transition-colors cursor-pointer group">
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          className="absolute inset-0 opacity-0 cursor-pointer"
-                        />
+                        <input type="file" multiple accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
                         <Plus className="w-4 h-4 text-zinc-600 group-hover:text-[#ccff00]" />
                       </div>
                     )}
@@ -483,16 +410,10 @@ export default function PortfolioSection() {
                 )}
 
                 {saveError && (
-                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm">
-                    {saveError}
-                  </div>
+                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm">{saveError}</div>
                 )}
 
-                <button
-                  disabled={isUploading}
-                  onClick={handleSaveProject}
-                  className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest rounded-full hover:bg-[#ccff00] hover:text-black transition-all disabled:opacity-50"
-                >
+                <button disabled={isUploading} onClick={handleSaveProject} className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest rounded-full hover:bg-[#ccff00] hover:text-black transition-all disabled:opacity-50">
                   {isUploading ? 'Uploading...' : (editingId ? 'Update Creation' : 'Save Creation')}
                 </button>
               </div>
@@ -509,17 +430,12 @@ export default function PortfolioSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="relative w-full max-w-7xl mx-auto py-12 md:py-32 px-4 sm:px-8"
-            >
+              className="relative w-full max-w-7xl mx-auto py-12 md:py-32 px-4 sm:px-8">
               <div className="fixed top-4 right-4 md:top-8 md:right-8 z-[150] flex gap-4">
-                <button
-                  onClick={() => setSelectedProject(null)}
-                  className="p-3 md:p-4 bg-white/10 backdrop-blur-xl rounded-full text-white hover:bg-[#ccff00] hover:text-black transition-all shadow-2xl border border-white/10 active:scale-90"
-                >
+                <button onClick={() => setSelectedProject(null)} className="p-3 md:p-4 bg-white/10 backdrop-blur-xl rounded-full text-white hover:bg-[#ccff00] hover:text-black transition-all shadow-2xl border border-white/10 active:scale-90">
                   <X className="w-6 h-6 md:w-8 md:h-8" />
                 </button>
               </div>
-
               <div className="grid grid-cols-1 lg:grid-cols-[1fr,400px] gap-12 md:gap-16 lg:gap-32">
                 <div className="space-y-6 md:space-y-16">
                   {selectedProject.images && selectedProject.images.map((img, i) => (
@@ -528,8 +444,7 @@ export default function PortfolioSection() {
                       initial={{ opacity: 0, scale: 0.98 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true, margin: "-100px" }}
-                      className="rounded-[1rem] overflow-hidden border border-white/5 bg-white/5 shadow-2xl"
-                    >
+                      className="rounded-[1rem] overflow-hidden border border-white/5 bg-white/5 shadow-2xl">
                       <img src={img} alt={`${selectedProject.title} ${i + 1}`} className="w-full h-auto block" />
                     </motion.div>
                   ))}
@@ -539,29 +454,20 @@ export default function PortfolioSection() {
                     </div>
                   )}
                 </div>
-
                 <aside className="lg:sticky lg:top-24 h-fit space-y-10 md:space-y-16 lg:pt-0 pb-12">
                   <div className="space-y-4 md:space-y-6">
                     <span className="text-[10px] md:text-xs font-mono text-[#ccff00] uppercase tracking-[0.4em]">{selectedProject.category}</span>
                     <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9]">{selectedProject.title}</h2>
                   </div>
-
                   <div className="h-[1px] bg-gradient-to-r from-white/20 to-transparent w-full" />
-
                   <div className="space-y-6 md:space-y-8">
                     <h5 className="text-[10px] md:text-[11px] font-mono text-zinc-500 uppercase tracking-[0.3em] md:tracking-[0.4em]">Project Insight</h5>
                     <p className="text-zinc-300 text-sm sm:text-base md:text-lg font-light leading-relaxed whitespace-pre-wrap">
                       {selectedProject.description || "No detailed description available."}
                     </p>
                   </div>
-
                   <div className="pt-8 md:pt-12">
-                    
-                      href="http://pf.kakao.com/_CybjX/chat"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full text-center inline-block px-8 md:px-12 py-4 md:py-6 bg-white text-black text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] rounded-full hover:bg-[#ccff00] transition-all shadow-2xl active:scale-95"
-                    >
+                    <a href="http://pf.kakao.com/_CybjX/chat" target="_blank" rel="noopener noreferrer" className="w-full text-center inline-block px-8 md:px-12 py-4 md:py-6 bg-white text-black text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] rounded-full hover:bg-[#ccff00] transition-all shadow-2xl active:scale-95">
                       Work With Us
                     </a>
                   </div>
