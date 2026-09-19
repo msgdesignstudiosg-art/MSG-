@@ -127,7 +127,7 @@ panels.forEach(panel=>{listen(panel,'pointermove',e=>{if(reduced||paused||e.poin
 return {
  updateProjects(records){
   if(disposed||!records.length)return;
-  PROJECTS=records;
+  PROJECTS=records.map(p=>{const seed=SEED_PROJECTS.find(s=>s.id===p.id);return seed?{...p,en:seed.en,b:seed.b,scope:seed.scope,intro:seed.intro,field:seed.field}:p;});
   refreshGallery();
   if(active?.type==='folder'&&active.id==='work'){renderFolder(folder('work'));observe();updateProgress();}
  },

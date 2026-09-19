@@ -41,7 +41,7 @@ export function subscribeToPortfolio(onProjects: (projects: any[]) => void) {
       return [{
         id: escape(id), t: escape(data.title), en: escape(data.title), b: escape(data.title),
         cat: known?.[2] || (packaging ? 'food' : branding ? 'branding' : 'graphic'),
-        field: packaging ? '패키지' : branding ? '브랜딩' : escape(category),
+        field: known?.[2] === 'graphic' ? '그래픽' : packaging ? '패키지' : branding ? '브랜딩' : escape(category),
         scope: escape(category), y: '', img: thumbnail,
         intro: escape(description[0] || ''), d: description.map(escape),
         images: Array.isArray(data.images) ? data.images.map(imageUrl).filter(Boolean) : [],
