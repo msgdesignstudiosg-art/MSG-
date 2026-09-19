@@ -1,13 +1,11 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
-import { LanguageProvider } from './contexts/LanguageContext'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
-  </StrictMode>,
-)
+async function mount() {
+  const isAdmin = window.location.pathname.replace(/\/$/, '') === '/admin';
+  const { default: Page } = isAdmin
+    ? await import('./Admin.tsx')
+    : await import('./App.tsx');
+  createRoot(document.getElementById('root')!).render(<StrictMode><Page /></StrictMode>);
+}
+mount();
