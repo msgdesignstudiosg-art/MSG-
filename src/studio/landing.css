@@ -38,8 +38,20 @@
 .exhibition-stage .exhibit[data-case="ajiya"]{z-index:3}
 .exhibition-stage .exhibit[data-case="ajiya"] img{width:185%;height:77%;object-fit:contain}
 .exhibition-stage .exhibit[data-case="ajiya"] .cup-blue{left:-37%;top:-11%;transform:rotate(11deg);z-index:1}
-.exhibition-stage .exhibit[data-case="ajiya"] .cup-red{left:-84%;top:11%;transform:rotate(-11deg);z-index:2}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-red{left:-84%;top:1%;transform:rotate(-11deg);z-index:2}
 .exhibition-stage .exhibit[data-case="ajiya"] .cup-green{left:-75%;top:43%;transform:rotate(-8deg);z-index:3}
 .exhibition-stage .exhibit[data-case="ajiya"] .cup-yellow{left:-25%;top:37%;transform:rotate(12deg);z-index:4}
 
 .exhibition-stage .exhibit-image{clip-path:inset(0 -100vw 0 -100vw)}
+
+/* Refine the two real pouch photographs without perspective distortion. */
+.exhibition-stage .exhibit[data-case="namhaeng"]{z-index:5}
+.exhibition-stage .exhibit[data-case="monchhichi"]{z-index:3}
+.exhibition-stage .jelly-pouch{box-shadow:none;border-radius:8px 8px 12px 10px;clip-path:polygon(3% 0,97% 0,100% 3%,99% 97%,74% 99%,48% 98%,25% 99%,1% 98%,0 3%)}
+.exhibition-stage .jelly-yellow{width:70%;left:37%;top:7%;transform:rotate(7deg)}
+.exhibition-stage .jelly-pink{width:76%;left:0%;top:31%;transform:rotate(-6deg)}
+.exhibition-stage .exhibit[data-case="seayababy"]{z-index:2}
+.exhibition-stage .exhibit[data-case="seayababy"] img{object-fit:contain;max-width:none;height:auto}
+.exhibition-stage .exhibit[data-case="seayababy"] .seaya-bag{width:110%;left:0%;top:43%;transform:rotate(-7deg);z-index:1}
+.exhibition-stage .exhibit[data-case="seayababy"] .seaya-blue{width:128%;left:-35%;top:-3%;transform:rotate(-13deg);z-index:2}
+.exhibition-stage .exhibit[data-case="seayababy"] .seaya-red{width:141%;left:-4%;top:-7%;transform:rotate(12deg);z-index:3}
