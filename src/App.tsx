@@ -1,3 +1,4 @@
+import '@fontsource-variable/geist';
 import { useEffect, useRef } from 'react';
 import template from './studio/template.html?raw';
 import { initializeStudio } from './studio/runtime.js';
