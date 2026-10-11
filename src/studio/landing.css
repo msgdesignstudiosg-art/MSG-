@@ -55,3 +55,39 @@
 .exhibition-stage .exhibit[data-case="seayababy"] .seaya-bag{width:110%;left:0%;top:26%;transform:rotate(-7deg);z-index:1}
 .exhibition-stage .exhibit[data-case="seayababy"] .seaya-blue{width:128%;left:-35%;top:-3%;transform:rotate(-13deg);z-index:2}
 .exhibition-stage .exhibit[data-case="seayababy"] .seaya-red{width:130%;left:0%;top:0%;transform:rotate(12deg);z-index:3}
+
+/* Gentle independent movement preserves all original artwork and base rotations. */
+.exhibition-stage .exhibit-art > *{animation:productFloat 6s ease-in-out infinite;animation-delay:-1s;will-change:translate;}
+.exhibition-stage .exhibit-art > :nth-child(2){animation-duration:7.4s;animation-delay:-3.5s;--float-x:-3px;--float-y:9px}
+.exhibition-stage .exhibit:nth-child(2) .exhibit-art > *{animation-duration:8s;animation-delay:-2s}
+.exhibition-stage .exhibit:nth-child(3) .exhibit-art > *{animation-duration:6.8s;animation-delay:-4s}
+.exhibition-stage .exhibit-art > :nth-child(3){animation-duration:8.2s;animation-delay:-5s}
+.exhibition-stage .exhibit-art > :nth-child(4){animation-duration:7s;animation-delay:-2.5s}
+@keyframes productFloat{0%,100%{translate:0 0;rotate:-.6deg}50%{translate:var(--float-x,3px) var(--float-y,-9px);rotate:.6deg}}
+@media(hover:hover) and (pointer:fine){.exhibition-stage .exhibit-art{translate:calc(var(--stage-x,0px) * .3) calc(var(--stage-y,0px) * .3);rotate:var(--turn,0deg);transition:transform .65s,translate .8s,rotate .8s}}
+.motion-off .exhibition-stage .exhibit-art > *{animation-play-state:paused}
+.motion-off .exhibition-stage .exhibit-art{translate:none;rotate:none}
+@media(prefers-reduced-motion:reduce){.exhibition-stage .exhibit-art > *{animation:none;will-change:auto}.exhibition-stage .exhibit-art{translate:none;rotate:none}}
+/* Full-width case study routes, with normal page scrolling. */
+.project-open main,.project-open .dock,.project-open .contact-fixed,.project-open #fileWindow{display:none!important}
+#projectPage{background:#f5f3ed;color:#202020;min-height:100svh;padding-top:42px}
+#projectPage[hidden]{display:none}
+.case-navigation{position:sticky;top:42px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 4vw;background:#f5f3edf2;backdrop-filter:blur(12px);border-bottom:1px solid #2223;font:12px var(--mono)}
+.case-navigation button,.case-navigation a{padding:8px 0;font-size:14px}
+.project-story{max-width:1800px;margin:auto}
+.project-intro{padding:70px 7vw 54px}
+.project-eyebrow{font-size:14px;margin-bottom:24px}
+.project-intro h1{font-size:clamp(40px,6vw,92px);line-height:1.12;letter-spacing:-.06em;max-width:1100px;margin:0 0 16px;outline:none;word-break:keep-all}
+.project-english{font:14px var(--mono);color:#666}
+.project-summary{display:grid;grid-template-columns:1.2fr 1fr;gap:8vw;margin-top:48px;align-items:start}
+.project-summary>p{font-size:clamp(19px,2vw,27px);line-height:1.6;word-break:keep-all;margin:0}
+.project-summary dl{margin:0;display:grid;gap:22px}.project-summary dl>div{display:grid;grid-template-columns:75px 1fr;gap:14px}
+.project-summary dt{font:11px var(--mono);color:#777;padding-top:5px}.project-summary dd{margin:0;font-size:15px;line-height:1.6}
+.project-full-image{display:block;width:100%;height:auto;max-width:none;margin:0;object-fit:contain}
+.project-description{padding:65px 7vw;display:grid;grid-template-columns:1fr 2fr;gap:6vw}
+.project-description>span{font:12px var(--mono);padding-top:7px}.project-description p{font-size:18px;line-height:1.9;margin:0 0 20px;word-break:keep-all}
+.project-gallery{display:flex;flex-direction:column;gap:0}
+.project-end{background:#171717;color:#f5f3ed;padding:55px 7vw 70px;display:grid;gap:40px}
+.project-end>a,.project-end>button{font-size:14px;text-align:left}.project-end>button[data-next]{padding:36px 0;border-top:1px solid #ffffff45;border-bottom:1px solid #ffffff45;display:grid;gap:16px;width:100%}
+.project-end small{font:12px var(--mono);color:#d5ff65}.project-end strong{font-size:clamp(28px,4vw,60px);letter-spacing:-.04em}
+@media(max-width:700px){#projectPage{padding-top:40px}.case-navigation{top:40px;padding:10px 20px}.case-navigation>span{display:none}.case-navigation button,.case-navigation a{font-size:12px}.project-intro{padding:42px 22px 32px}.project-summary{grid-template-columns:1fr;gap:30px;margin-top:30px}.project-summary dl{gap:14px}.project-description{padding:35px 22px;grid-template-columns:1fr;gap:22px}.project-description p{font-size:16px}.project-end{padding:40px 22px 55px}}
