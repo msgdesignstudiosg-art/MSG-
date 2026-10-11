@@ -66,6 +66,18 @@ projectPage.id='projectPage';projectPage.hidden=true;
 win.before(projectPage);
 let returnTop=0,projectOpener=null;
 const originalTitle=document.title;
+const escapeMarkup=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function renderSource(p){
+ let imageIndex=0;
+ const modules=p.modules.map(m=>{
+  const ratio=m.height/m.width;
+  if(m.images.length)return `<div class="behance-media" style="aspect-ratio:${m.width}/${m.height};background:${m.background}">${m.images.map(im=>`<img src="${escapeMarkup(im.src)}" alt="${escapeMarkup(im.alt||p.t)}" loading="${imageIndex++<2?'eager':'lazy'}" decoding="async" style="left:${im.x*100}%;top:${im.y/ratio*100}%;width:${im.w*100}%;height:${im.h/ratio*100}%">`).join('')}</div>`;
+  if(m.text){const t=m.textStyle;return `<div class="behance-text" style="color:${t.color};font-family:${escapeMarkup(t.fontFamily)};font-size:${t.fontSize};line-height:${parseFloat(t.lineHeight)/parseFloat(t.fontSize)};width:${t.w*100}%;margin-left:${t.x*100}%">${m.text}</div>`;}
+  if(m.embeds.length)return `<div class="behance-embeds">${m.embeds.map(e=>`<iframe src="${escapeMarkup(e.src)}" title="${escapeMarkup(p.b)} 원본 영상" loading="lazy" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe><a href="${escapeMarkup(e.src.replace('/embed','/'))}" target="_blank" rel="noopener">원본 영상 보기 ↗</a>`).join('')}</div>`;
+  return `<div aria-hidden="true" style="padding-top:${ratio*100}%"></div>`;
+ }).join('');
+ return `<header class="source-title"><p>${escapeMarkup(p.field)}</p><h1 tabindex="-1">${escapeMarkup(p.t)}</h1></header><div class="behance-canvas" style="background:${p.sourceBackground}">${modules}</div>`;
+}
 function showProject(id,push=true){
  const p=project(id);if(!p)return;
  if(!document.body.classList.contains('project-open')){returnTop=window.scrollY;projectOpener=document.activeElement;}
@@ -74,7 +86,7 @@ function showProject(id,push=true){
  if(push){const url=new URL(location.href);url.searchParams.set('case',id);url.hash='';window.history.pushState({msgProject:true},'',url);}
  document.body.classList.add('project-open');document.body.style.overflow='';
  projectPage.hidden=false;
- projectPage.innerHTML=`<nav class="case-navigation"><button data-project-return>← 작업 목록으로</button><span>SELECTED WORK / ${String(Math.max(0,index)+1).padStart(2,'0')}</span><a href="mailto:hello@msgdesignstudio.com">프로젝트 문의 ↗</a></nav><article class="project-story"><header class="project-intro"><div class="project-eyebrow">${p.field}</div><h1 tabindex="-1">${p.t}</h1><p class="project-english">${p.en}</p><div class="project-summary"><p>${p.intro}</p><dl><div><dt>BRAND</dt><dd>${p.b}</dd></div><div><dt>SCOPE</dt><dd>${p.scope}</dd></div></dl></div></header><img class="project-full-image" src="${p.img}" alt="${p.t}" fetchpriority="high"><section class="project-description"><span>BEHIND THE DESIGN</span><div>${p.d.map(x=>`<p>${x}</p>`).join('')}</div></section><div class="project-gallery">${(p.images||[]).filter(img=>img!==p.img).map((img,i)=>`<img class="project-full-image" src="${img}" alt="${p.t} 상세 이미지 ${i+1}" loading="lazy">`).join('')}</div><footer class="project-end">${p.behance?`<a href="${p.behance}" target="_blank" rel="noopener">Behance에서 보기 ↗</a>`:''}<button data-next="${next.id}"><small>NEXT PROJECT</small><strong>${next.b} ↗</strong></button><button data-project-return>← 작업 목록으로</button></footer></article>`;
+ projectPage.innerHTML=`<nav class="case-navigation"><button data-project-return>← 작업 목록으로</button><span>SELECTED WORK / ${String(Math.max(0,index)+1).padStart(2,'0')}</span><a href="mailto:hello@msgdesignstudio.com">프로젝트 문의 ↗</a></nav><article class="project-story">${p.modules?renderSource(p):`<header class="project-intro"><div class="project-eyebrow">${p.field}</div><h1 tabindex="-1">${p.t}</h1><p class="project-english">${p.en}</p><div class="project-summary"><p>${p.intro}</p><dl><div><dt>BRAND</dt><dd>${p.b}</dd></div><div><dt>SCOPE</dt><dd>${p.scope}</dd></div></dl></div></header><img class="project-full-image" src="${p.img}" alt="${p.t}" fetchpriority="high"><section class="project-description"><span>BEHIND THE DESIGN</span><div>${p.d.map(x=>`<p>${x}</p>`).join('')}</div></section><div class="project-gallery">${(p.images||[]).filter(img=>img!==p.img).map((img,i)=>`<img class="project-full-image" src="${img}" alt="${p.t} 상세 이미지 ${i+1}" loading="lazy">`).join('')}</div>`}<footer class="project-end">${p.behance?`<a href="${p.behance}" target="_blank" rel="noopener">Behance에서 보기 ↗</a>`:''}<button data-next="${next.id}"><small>NEXT PROJECT</small><strong>${next.b} ↗</strong></button><button data-project-return>← 작업 목록으로</button></footer></article>`;
  document.title=p.t+' — MSG Design Studio';
  window.scrollTo({top:0,behavior:'instant'});
  projectPage.querySelector('h1').focus({preventScroll:true});
@@ -166,9 +178,9 @@ panels.forEach(panel=>{listen(panel,'pointermove',e=>{if(reduced||paused||e.poin
 return {
  updateProjects(records){
   if(disposed||!records.length)return;
-  // The public selection is intentionally limited to the first ten Behance projects.
+  // The public selection is intentionally limited to the first thirty Behance projects.
   // Existing admin descriptions can update selected cases without adding older work.
-  PROJECTS=CURATED_PROJECTS.map(seed=>{const remote=records.find(p=>p.id===seed.id);return {...seed,d:remote?.d?.length?remote.d:seed.d};});
+  PROJECTS=CURATED_PROJECTS.map(seed=>{const remote=records.find(p=>p.id===seed.id);return seed.modules?{...seed}:{...seed,d:remote?.d?.length?remote.d:seed.d};});
   refreshGallery();
   if(active?.type==='folder'&&active.id==='work'){renderFolder(folder('work'));observe();updateProgress();}
  },
