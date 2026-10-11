@@ -1,6 +1,7 @@
 import '@fontsource-variable/geist';
 import { useEffect, useRef } from 'react';
 import template from './studio/template.html?raw';
+import { initializeLanguage } from './studio/language.js';
 import { initializeStudio } from './studio/runtime.js';
 import './studio/studio.css';
 import './studio/exhibition.css';
@@ -10,6 +11,7 @@ export default function App() {
   const host = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const studio = initializeStudio(host.current!);
+    const destroyLanguage = initializeLanguage(host.current!);
     let disposed = false;
     let unsubscribe: (() => void) | undefined;
     if (import.meta.env.VITE_FIREBASE_API_KEY) {
@@ -17,7 +19,7 @@ export default function App() {
         if (!disposed) unsubscribe = subscribeToPortfolio(studio.updateProjects);
       }).catch(() => { /* The bundled portfolio stays available offline. */ });
     }
-    return () => { disposed = true; unsubscribe?.(); studio.destroy(); };
+    return () => { disposed = true; unsubscribe?.(); destroyLanguage(); studio.destroy(); };
   }, []);
   return <div ref={host} dangerouslySetInnerHTML={{ __html: template }} />;
 }
