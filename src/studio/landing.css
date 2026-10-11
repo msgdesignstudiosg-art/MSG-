@@ -133,3 +133,10 @@
 .instagram-profile{width:100%;max-width:1100px;margin:0 auto;background:#fff;border:1px solid #d7d5ce;border-radius:4px;overflow:hidden}
 .instagram-profile iframe{display:block;border:0;width:100%;height:calc(61.34vw + 250px);max-height:985px;background:white}
 @media(max-width:700px){.instagram-profile iframe{height:calc(66.67vw + 225px);max-height:none}}
+
+/* One typography system across portfolio navigation, cards and every case. */
+:root{--portfolio-font:"Geist Variable",Pre,Arial,sans-serif}
+.portfolio-section,.portfolio-section *,#projectPage,#projectPage *,.exhibit-caption,.exhibit-caption *{font-family:var(--portfolio-font)!important;font-synthesis:none}
+.portfolio-heading h2 em{font-style:normal}
+.portfolio-tabs>button,.portfolio-tabs>a,.exhibit-caption b{font-weight:500;letter-spacing:.01em}
+.portfolio-card-meta b,.source-title h1,.project-intro h1{font-weight:600}
