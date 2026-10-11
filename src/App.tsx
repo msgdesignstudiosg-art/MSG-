@@ -3,6 +3,7 @@ import template from './studio/template.html?raw';
 import { initializeStudio } from './studio/runtime.js';
 import './studio/studio.css';
 import './studio/exhibition.css';
+import './studio/landing.css';
 
 export default function App() {
   const host = useRef<HTMLDivElement>(null);

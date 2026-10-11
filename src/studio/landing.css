@@ -1,0 +1,42 @@
+/* One continuous, kinetic display of the studio's actual artwork. */
+.exhibition{position:relative;background:#111;overflow:hidden;padding-bottom:0}
+.studio-masthead{position:relative;z-index:3;border:0;min-height:150px;padding-block:25px}
+.masthead-identity h1{width:clamp(160px,18vw,245px)}
+.masthead-copy strong{font-size:clamp(22px,2.7vw,40px)}
+.exhibition-meta{position:relative;z-index:3;border-top:1px solid #ffffff30;padding-block:13px}
+.exhibition-stage{height:clamp(480px,46vw,660px);display:block;margin:0 -2.3vw;isolation:isolate;perspective:1200px}
+.exhibition-stage:before{content:'GOOD IDEAS.';position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);font:900 clamp(100px,17vw,270px)/.85 Helvetica,Arial;letter-spacing:-.09em;white-space:nowrap;color:#242424;pointer-events:none;z-index:-1}
+.exhibition-stage:after{content:'✳';position:absolute;left:45%;top:3%;font:180px/1 Arial;color:#d5ff65;z-index:-1;animation:studio-spin 36s linear infinite;pointer-events:none}
+.exhibit{position:absolute;width:28%;height:83%;top:5%;overflow:visible;--depth:1}
+.exhibit:nth-child(1){left:-1%;top:6%;--angle:-11deg;--depth:1.1;z-index:2}
+.exhibit:nth-child(2){left:24%;top:14%;--angle:7deg;--depth:.65;z-index:4}
+.exhibit:nth-child(3){left:48%;top:0%;--angle:-7deg;--depth:1.3;z-index:3}
+.exhibit:nth-child(4){left:73%;top:12%;--angle:8deg;--depth:.8;z-index:2}
+.exhibit .exhibit-image{height:100%;min-height:0;aspect-ratio:auto;overflow:visible;animation:kinetic-enter 1.2s var(--delay) cubic-bezier(.16,1,.3,1) both}
+.exhibit .exhibit-art{inset:0;background:none!important;overflow:visible;padding:0!important;transform:rotate(var(--angle));translate:calc(var(--stage-x,0px)*var(--depth)) calc(var(--stage-y,0px)*var(--depth));transition:translate 1s cubic-bezier(.16,1,.3,1),filter .4s,scale .5s;animation:studio-float 6s ease-in-out infinite;animation-delay:calc(var(--panel)*-1.4s);filter:drop-shadow(0 25px 18px #0006)}
+.exhibit:hover .exhibit-art,.exhibit:focus-visible .exhibit-art{scale:1.09;filter:drop-shadow(0 35px 22px #0009);animation-play-state:paused}
+.exhibit:nth-child(1) .exhibit-art{align-items:center;padding:15px!important}
+.exhibit[data-case="namhaeng"] .exhibit-art img{width:100%;height:auto;object-fit:contain;border:9px solid #f5f0e7;box-shadow:0 0 0 1px #ddd3;transform:rotate(-2deg)}
+.exhibit:nth-child(1) .exhibit-art:after{content:'NAMHAENG / ORIGINAL WORK';position:absolute;bottom:12%;left:12%;font:10px var(--mono);background:#eaff70;color:#111;padding:9px 14px;transform:rotate(5deg)}
+.exhibit[data-case="monchhichi"] .exhibit-art img{width:65%;height:76%;left:-3%;top:0%;transform:rotate(-9deg);filter:drop-shadow(0 16px 12px #0005)}
+.exhibit[data-case="monchhichi"] .exhibit-art img+img{width:63%;left:41%;top:26%;transform:rotate(10deg)}
+.exhibit[data-case="hana"] .exhibit-art img{width:69%;height:77%;left:0%;top:-2%;transform:rotate(-5deg);filter:drop-shadow(0 15px 15px #0008)}
+.exhibit[data-case="hana"] .exhibit-art img+img{left:37%;top:29%;transform:rotate(12deg)}
+.exhibit[data-case="ajiya"] .exhibit-art img{width:175%;height:77%;left:-63%;top:-15%;transform:rotate(-9deg);filter:drop-shadow(0 15px 15px #0005)}
+.exhibit[data-case="ajiya"] .exhibit-art img+img{left:-21%;top:30%;transform:rotate(11deg)}
+.exhibit .selection-corners{display:none}
+.exhibit .view-project{top:35%;background:#d5ff65;z-index:5;box-shadow:0 8px 30px #0005}
+.exhibit .exhibit-caption{position:absolute;bottom:-4%;left:10%;right:3%;min-height:0;padding:13px 10px;background:transparent;border:0;border-top:1px solid #ffffff50;gap:10px;transform:none}
+.exhibit:nth-child(3) .exhibit-caption{bottom:-10%}
+.exhibit-caption b{font-size:13px}.exhibit-caption small{font-size:11px}.exhibit-number{color:#d5ff65;font-size:11px}
+.exhibition-bottom{min-height:100px;border-top:1px solid #ffffff25;position:relative;z-index:5;padding:24px 0 35px}
+.exhibition-bottom .all-work-link{font-size:16px;background:#d5ff65;color:#111;border:0;border-radius:30px;padding:15px 22px;transition:transform .25s}.exhibition-bottom .all-work-link:hover{transform:rotate(-3deg) scale(1.03)}
+.exhibition-bottom>span:nth-child(2){visibility:visible;display:block;font-size:12px}
+.portfolio-tabs>button:nth-child(4){background:#b9a4e4}.portfolio-section[data-filter=branding] .portfolio-sheet{background:#83c6f4}.portfolio-section[data-filter=others] .portfolio-sheet{background:#b9a4e4}
+@keyframes studio-float{0%,100%{transform:translateY(0) rotate(var(--angle))}50%{transform:translateY(-22px) rotate(calc(var(--angle) + 3deg))}}
+@keyframes studio-spin{to{transform:rotate(360deg)}}
+@keyframes kinetic-enter{from{opacity:0;transform:translateY(110px) scale(.8) rotate(-8deg)}to{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+.motion-off .exhibition-stage:after,.motion-off .exhibit .exhibit-art,.motion-off .exhibit .exhibit-image{animation:none!important}.motion-off .exhibit .exhibit-art{translate:0 0!important;transform:rotate(var(--angle))!important}
+@media(max-width:800px){.studio-masthead{min-height:145px}.exhibition-stage{height:780px;margin:0 -16px}.exhibition-stage:before{font-size:25vw;top:45%;transform:translate(-50%,-50%) rotate(-90deg)}.exhibition-stage:after{font-size:130px;left:63%;top:40%}.exhibit{width:51%;height:42%}.exhibit:nth-child(1){left:-2%;top:0%}.exhibit:nth-child(2){left:47%;top:3%}.exhibit:nth-child(3){left:0%;top:50%}.exhibit:nth-child(4){left:50%;top:54%}.exhibit .exhibit-caption{bottom:-8%;left:9%;right:9%}.exhibit:nth-child(3) .exhibit-caption{bottom:-8%}.exhibition-bottom>span:nth-child(2){display:none}.exhibit:nth-child(1) .exhibit-art:after{font-size:8px;bottom:8%;left:13%;padding:7px}.exhibition-bottom{padding-bottom:25px;min-height:90px}.exhibit .view-project{display:none}}
+@media(max-width:480px){.exhibition-stage{height:640px}.masthead-identity h1{width:145px}.masthead-copy strong{font-size:18px}.exhibit-caption b{font-size:10px}.exhibit-caption small{font-size:10px}.exhibit-caption b>span{margin-left:2px}.exhibit-number{font-size:9px}.exhibit .exhibit-caption{padding:10px 2px;gap:5px}.exhibition-stage:after{font-size:100px}.exhibition-bottom .all-work-link{font-size:13px;padding:13px 17px}}
+@media(prefers-reduced-motion:reduce){.exhibition-stage:after,.exhibit .exhibit-art,.exhibit .exhibit-image{animation:none!important;transition:none!important}.exhibit .exhibit-art{translate:none!important;transform:rotate(var(--angle))!important}}
