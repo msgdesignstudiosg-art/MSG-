@@ -19,13 +19,9 @@
 .exhibition-stage .exhibit[data-case="namhaeng"] .beer-blue{left:8%;top:13%;transform:rotate(-10deg)}
 .exhibition-stage .exhibit[data-case="namhaeng"] .beer-can img{position:absolute;width:289.524%;height:100%;left:0;top:0;object-fit:fill;transform:none;filter:none}
 .exhibition-stage .exhibit[data-case="monchhichi"]{z-index:3}
-.exhibition-stage .exhibit[data-case="monchhichi"] img{width:75%;height:auto;left:31%;top:3%;transform:rotate(12deg);border-radius:9px}
-.exhibition-stage .exhibit[data-case="monchhichi"] img+img{width:80%;left:-9%;top:26%;transform:rotate(-10deg)}
 .exhibition-stage .exhibit[data-case="hana"]{z-index:2}
 .exhibition-stage .exhibit[data-case="hana"] img{width:91%;height:77%;left:-2%;top:-4%;transform:rotate(5deg)}
 .exhibition-stage .exhibit[data-case="hana"] img+img{left:13%;top:39%;transform:rotate(-9deg)}
-.exhibition-stage .exhibit[data-case="ajiya"] img{width:215%;height:95%;left:-48%;top:-13%;transform:rotate(10deg)}
-.exhibition-stage .exhibit[data-case="ajiya"] img+img{left:-88%;top:35%;transform:rotate(-8deg)}
 .exhibit-caption{position:relative;z-index:6;background:#101010;padding:17px 24px;min-height:78px;gap:16px;border:0}
 .exhibit-caption b{font-size:15px}.exhibit-caption small{font-size:12px}.exhibit-number{font-size:12px;color:#d5ff65}
 .exhibition-bottom{min-height:100px;padding:20px 0 30px}
@@ -33,3 +29,15 @@
 .portfolio-tabs>button:nth-child(4){background:#b9a4e4}.portfolio-section[data-filter=branding] .portfolio-sheet{background:#83c6f4}.portfolio-section[data-filter=others] .portfolio-sheet{background:#b9a4e4}
 @media(max-width:700px){.studio-masthead{min-height:135px;padding-block:20px}.masthead-identity h1{width:150px}.masthead-copy strong{font-size:18px}.exhibition-stage{--scene-height:342px;grid-template-columns:repeat(4,225px);margin:0 -16px;overflow-x:auto;overflow-y:hidden;background-size:900px var(--scene-height);background-position:left top;scrollbar-color:#d5ff65 #202020;scrollbar-width:thin}.exhibition-stage .exhibit-image{height:var(--scene-height);max-height:none}.exhibit-caption{padding:14px 12px;min-height:70px;gap:8px}.exhibit-caption b{font-size:12px}.exhibit-caption small{font-size:11px}.exhibition-bottom>span:nth-child(2){display:none}.exhibition-bottom{min-height:90px}.exhibition-bottom .scroll-prompt{font-size:0}.exhibition-bottom .scroll-prompt:after{content:'SWIPE TO EXPLORE ↔';font:9px var(--mono)}}
 @media(prefers-reduced-motion:reduce){.exhibition-stage .exhibit-art{transition:none}.exhibition-stage .exhibit:hover .exhibit-art{transform:none}}
+
+/* Use the photographed, curved pouch surface from the supplied mockups. */
+.exhibition-stage .jelly-pouch{position:absolute;display:block;width:77%;aspect-ratio:568/724;overflow:hidden;border-radius:12px 12px 8px 8px;box-shadow:14px 18px 25px #0006;transform-origin:50% 80%}
+.exhibition-stage .jelly-yellow{left:30%;top:3%;transform:perspective(900px) rotateY(-12deg) rotate(11deg)}
+.exhibition-stage .jelly-pink{width:83%;left:-9%;top:27%;transform:perspective(900px) rotateY(10deg) rotate(-9deg)}
+.exhibition-stage .exhibit[data-case="monchhichi"] .jelly-pouch img{width:338.03%;height:149.17%;left:-118.13%;top:-25.69%;object-fit:fill;transform:none;border-radius:0;filter:none}
+.exhibition-stage .exhibit[data-case="ajiya"]{z-index:3}
+.exhibition-stage .exhibit[data-case="ajiya"] img{width:185%;height:77%;object-fit:contain}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-blue{left:-37%;top:-16%;transform:rotate(11deg);z-index:1}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-red{left:-84%;top:11%;transform:rotate(-11deg);z-index:2}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-green{left:-75%;top:56%;transform:rotate(-8deg);z-index:3}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-yellow{left:-9%;top:37%;transform:rotate(12deg);z-index:4}
