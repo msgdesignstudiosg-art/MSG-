@@ -1,0 +1,158 @@
+/* Original artwork is rendered directly; only the continuous cloud backdrop is generated. */
+.exhibition{background:#101010;padding-bottom:0}
+.studio-masthead{padding-block:18px;min-height:138px;border-bottom:1px solid #ffffff45}
+.masthead-identity h1{width:clamp(165px,17vw,255px)}
+.masthead-copy strong{font-size:clamp(22px,2.7vw,40px)}
+.exhibition-meta{padding-block:13px}
+.exhibition-stage{--scene-height:38vw;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0 -2.3vw;position:relative;isolation:isolate;overflow:hidden;background:url('/studio-assets/exhibition/connected-clouds.webp') center top/100% var(--scene-height) no-repeat}
+.exhibition-stage .exhibit{position:relative;width:auto;height:auto;overflow:visible;z-index:1;background:none}
+.exhibition-stage .exhibit-image{height:var(--scene-height);min-height:0;aspect-ratio:auto;overflow:visible;animation:none;background:none}
+.exhibition-stage .exhibit-art{display:block;inset:0;background:none!important;padding:0!important;overflow:visible;transform:none;filter:none;transition:transform .65s cubic-bezier(.2,.8,.2,1)}
+.exhibition-stage .exhibit-art img{position:absolute;object-fit:contain;max-width:none;box-shadow:none;border:0;filter:drop-shadow(0 16px 13px #0006)}
+.exhibition-stage .exhibit:hover .exhibit-art{transform:translateY(-7px) scale(1.025)}
+.exhibition-stage .selection-corners{display:none}
+.exhibition-stage .exhibit:focus-visible{outline:2px solid #d5ff65;outline-offset:-3px}
+.exhibition-stage .view-project{top:40%;z-index:5;background:#d5ff65;box-shadow:0 6px 30px #0005}
+.exhibition-stage .exhibit[data-case="namhaeng"] .exhibit-art{width:100%;height:100%;left:0;overflow:visible;mask-image:none;-webkit-mask-image:none}
+.exhibition-stage .exhibit[data-case="namhaeng"] .beer-can{position:absolute;display:block;width:57%;aspect-ratio:630/1575;overflow:hidden;filter:drop-shadow(0 16px 12px #0005)}
+.exhibition-stage .exhibit[data-case="namhaeng"] .beer-pink{left:45%;top:1%;transform:rotate(8deg)}
+.exhibition-stage .exhibit[data-case="namhaeng"] .beer-blue{left:8%;top:13%;transform:rotate(-10deg)}
+.exhibition-stage .exhibit[data-case="namhaeng"] .beer-can img{position:absolute;width:289.524%;height:100%;left:0;top:0;object-fit:fill;transform:none;filter:none}
+.exhibition-stage .exhibit[data-case="monchhichi"]{z-index:3}
+.exhibition-stage .exhibit[data-case="hana"]{z-index:2}
+.exhibition-stage .exhibit[data-case="hana"] img{width:91%;height:77%;left:-2%;top:-4%;transform:rotate(5deg)}
+.exhibition-stage .exhibit[data-case="hana"] img+img{left:13%;top:39%;transform:rotate(-9deg)}
+.exhibit-caption{position:relative;z-index:6;background:#101010;padding:17px 24px;min-height:78px;gap:16px;border:0}
+.exhibit-caption b{font-size:15px}.exhibit-caption small{font-size:12px}.exhibit-number{font-size:12px;color:#d5ff65}
+.exhibition-bottom{min-height:100px;padding:20px 0 30px}
+.exhibition-bottom>span:nth-child(2){visibility:visible}
+.portfolio-tabs>button:nth-child(4){background:#b9a4e4}.portfolio-section[data-filter=branding] .portfolio-sheet{background:#83c6f4}.portfolio-section[data-filter=others] .portfolio-sheet{background:#b9a4e4}
+@media(max-width:700px){.studio-masthead{min-height:135px;padding-block:20px}.masthead-identity h1{width:150px}.masthead-copy strong{font-size:18px}.exhibition-stage{--scene-height:342px;grid-template-columns:repeat(4,225px);margin:0 -16px;overflow-x:auto;overflow-y:hidden;background-size:900px var(--scene-height);background-position:left top;scrollbar-color:#d5ff65 #202020;scrollbar-width:thin}.exhibition-stage .exhibit-image{height:var(--scene-height);max-height:none}.exhibit-caption{padding:14px 12px;min-height:70px;gap:8px}.exhibit-caption b{font-size:12px}.exhibit-caption small{font-size:11px}.exhibition-bottom>span:nth-child(2){display:none}.exhibition-bottom{min-height:90px}.exhibition-bottom .scroll-prompt{font-size:0}.exhibition-bottom .scroll-prompt:after{content:'SWIPE TO EXPLORE ↔';font:9px var(--mono)}}
+@media(prefers-reduced-motion:reduce){.exhibition-stage .exhibit-art{transition:none}.exhibition-stage .exhibit:hover .exhibit-art{transform:none}}
+
+/* Use the photographed, curved pouch surface from the supplied mockups. */
+.exhibition-stage .jelly-pouch{position:absolute;display:block;width:77%;aspect-ratio:568/724;overflow:hidden;border-radius:12px 12px 8px 8px;box-shadow:14px 18px 25px #0006;transform-origin:50% 80%}
+.exhibition-stage .jelly-yellow{left:30%;top:3%;transform:perspective(900px) rotateY(-12deg) rotate(11deg)}
+.exhibition-stage .jelly-pink{width:83%;left:-9%;top:27%;transform:perspective(900px) rotateY(10deg) rotate(-9deg)}
+.exhibition-stage .exhibit[data-case="monchhichi"] .jelly-pouch img{width:338.03%;height:149.17%;left:-118.13%;top:-25.69%;object-fit:fill;transform:none;border-radius:0;filter:none}
+.exhibition-stage .exhibit[data-case="ajiya"]{z-index:3}
+.exhibition-stage .exhibit[data-case="ajiya"] img{width:185%;height:77%;object-fit:contain}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-blue{left:-37%;top:-11%;transform:rotate(11deg);z-index:1}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-red{left:-84%;top:1%;transform:rotate(-11deg);z-index:2}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-green{left:-75%;top:43%;transform:rotate(-8deg);z-index:3}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-yellow{left:-25%;top:37%;transform:rotate(12deg);z-index:4}
+
+.exhibition-stage .exhibit-image{clip-path:inset(0 -100vw 0 -100vw)}
+
+/* Refine the two real pouch photographs without perspective distortion. */
+.exhibition-stage .exhibit[data-case="namhaeng"]{z-index:5}
+.exhibition-stage .exhibit[data-case="monchhichi"]{z-index:3}
+.exhibition-stage .jelly-pouch{box-shadow:none;border-radius:8px 8px 12px 10px;clip-path:polygon(3% 0,97% 0,100% 3%,99% 97%,74% 99%,48% 98%,25% 99%,1% 98%,0 3%)}
+.exhibition-stage .jelly-yellow{width:70%;left:37%;top:7%;transform:rotate(7deg)}
+.exhibition-stage .jelly-pink{width:76%;left:0%;top:31%;transform:rotate(-6deg)}
+.exhibition-stage .exhibit[data-case="seayababy"]{z-index:2}
+.exhibition-stage .exhibit[data-case="seayababy"] img{object-fit:contain;max-width:none;height:auto}
+.exhibition-stage .exhibit[data-case="seayababy"] .seaya-bag{width:110%;left:0%;top:26%;transform:rotate(-7deg);z-index:1}
+.exhibition-stage .exhibit[data-case="seayababy"] .seaya-blue{width:128%;left:-35%;top:-3%;transform:rotate(-13deg);z-index:2}
+.exhibition-stage .exhibit[data-case="seayababy"] .seaya-red{width:130%;left:0%;top:0%;transform:rotate(12deg);z-index:3}
+
+/* Gentle independent movement preserves all original artwork and base rotations. */
+.exhibition-stage .exhibit-art > *{animation:productFloat 6s ease-in-out infinite;animation-delay:-1s;will-change:translate;}
+.exhibition-stage .exhibit-art > :nth-child(2){animation-duration:7.4s;animation-delay:-3.5s;--float-x:-3px;--float-y:9px}
+.exhibition-stage .exhibit:nth-child(2) .exhibit-art > *{animation-duration:8s;animation-delay:-2s}
+.exhibition-stage .exhibit:nth-child(3) .exhibit-art > *{animation-duration:6.8s;animation-delay:-4s}
+.exhibition-stage .exhibit-art > :nth-child(3){animation-duration:8.2s;animation-delay:-5s}
+.exhibition-stage .exhibit-art > :nth-child(4){animation-duration:7s;animation-delay:-2.5s}
+@keyframes productFloat{0%,100%{translate:0 0;rotate:-.6deg}50%{translate:var(--float-x,3px) var(--float-y,-9px);rotate:.6deg}}
+@media(hover:hover) and (pointer:fine){.exhibition-stage .exhibit-art{translate:calc(var(--stage-x,0px) * .3) calc(var(--stage-y,0px) * .3);rotate:var(--turn,0deg);transition:transform .65s,translate .8s,rotate .8s}}
+.motion-off .exhibition-stage .exhibit-art > *{animation-play-state:paused}
+.motion-off .exhibition-stage .exhibit-art{translate:none;rotate:none}
+@media(prefers-reduced-motion:reduce){.exhibition-stage .exhibit-art > *{animation:none;will-change:auto}.exhibition-stage .exhibit-art{translate:none;rotate:none}}
+/* Case study routes with normal page scrolling. */
+.project-open main,.project-open .dock,.project-open .contact-fixed,.project-open #fileWindow{display:none!important}
+#projectPage{background:#f5f3ed;color:#202020;min-height:100svh;padding-top:42px}
+#projectPage[hidden]{display:none}
+.case-navigation{position:sticky;top:42px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 4vw;background:#f5f3edf2;backdrop-filter:blur(12px);border-bottom:1px solid #2223;font:12px var(--mono)}
+.case-navigation button,.case-navigation a{padding:8px 0;font-size:14px}
+.project-story{width:calc(100% - 64px);max-width:960px;margin:auto}
+.project-intro{padding:48px 0 36px}
+.project-eyebrow{font-size:14px;margin-bottom:24px}
+.project-intro h1{font-size:clamp(36px,4.5vw,64px);line-height:1.12;letter-spacing:-.06em;max-width:1100px;margin:0 0 16px;outline:none;word-break:keep-all}
+.project-english{font:14px var(--mono);color:#666}
+.project-summary{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;margin-top:32px;align-items:start}
+.project-summary>p{font-size:clamp(18px,1.65vw,22px);line-height:1.6;word-break:keep-all;margin:0}
+.project-summary dl{margin:0;display:grid;gap:22px}.project-summary dl>div{display:grid;grid-template-columns:75px 1fr;gap:14px}
+.project-summary dt{font:11px var(--mono);color:#777;padding-top:5px}.project-summary dd{margin:0;font-size:15px;line-height:1.6}
+.project-full-image{display:block;width:100%;height:auto;max-width:none;margin:0;object-fit:contain}
+.project-description{padding:44px 0;display:grid;grid-template-columns:1fr 2fr;gap:6vw}
+.project-description>span{font:12px var(--mono);padding-top:7px}.project-description p{font-size:18px;line-height:1.9;margin:0 0 20px;word-break:keep-all}
+.project-gallery{display:flex;flex-direction:column;gap:0}
+.project-end{background:#171717;color:#f5f3ed;padding:55px 7vw 70px;display:grid;gap:40px}
+.project-end>a,.project-end>button{font-size:14px;text-align:left}.project-end>button[data-next]{padding:36px 0;border-top:1px solid #ffffff45;border-bottom:1px solid #ffffff45;display:grid;gap:16px;width:100%}
+.project-end small{font:12px var(--mono);color:#d5ff65}.project-end strong{font-size:clamp(28px,4vw,60px);letter-spacing:-.04em}
+@media(max-width:700px){#projectPage{padding-top:40px}.case-navigation{top:40px;padding:10px 20px}.case-navigation>span{display:none}.case-navigation button,.case-navigation a{font-size:12px}.project-story{width:calc(100% - 32px)}.project-intro{padding:32px 0 28px}.project-summary{grid-template-columns:1fr;gap:30px;margin-top:30px}.project-summary dl{gap:14px}.project-description{padding:32px 0;grid-template-columns:1fr;gap:22px}.project-description p{font-size:16px}.project-end{padding:40px 22px 55px}}
+
+/* Keep the opening artwork in view; long Behance boards retain their proportions. */
+.project-story>.project-full-image{width:auto;max-width:100%;max-height:68svh;margin:0 auto;object-fit:contain}
+
+/* Behance modules preserve their source order, original media, and image-group geometry. */
+.source-title{padding:32px 0}.source-title>p{font:12px var(--mono);margin:0 0 12px;color:#666}.source-title h1{font-size:clamp(24px,3vw,40px);line-height:1.25;letter-spacing:-.035em;margin:0;outline:none;word-break:keep-all}
+.behance-canvas{container-type:inline-size;overflow:hidden}
+.behance-media{position:relative;width:100%;overflow:hidden}
+.behance-media img{position:absolute;display:block;max-width:none;margin:0;object-fit:fill}
+.behance-text{padding:0;overflow-wrap:anywhere}.behance-text .bold{font-weight:700}.behance-text .italic{font-style:italic}.behance-text .underline{text-decoration:underline}.behance-text a{text-decoration:underline}
+.behance-embeds{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px}.behance-embeds iframe{width:100%;max-width:540px;height:700px;border:0;background:white}.behance-embeds>a{font-size:13px;margin-bottom:20px;text-decoration:underline}
+@media(max-width:700px){.source-title{padding:25px 0}.behance-text{font-size:14px!important;line-height:1.6!important}.behance-text [style*="font-size"]{font-size:inherit!important}.behance-embeds{padding:12px}.behance-embeds iframe{height:580px}}
+
+/* Extract the complete curved pouch from the original Behance mockup, preserving its printed artwork. */
+.exhibition-stage .jelly-pouch{aspect-ratio:502/630;overflow:visible;clip-path:none;border-radius:0;filter:drop-shadow(9px 15px 9px #0005)}
+.exhibition-stage .jelly-silhouette{position:absolute;inset:0;display:block;overflow:hidden;clip-path:polygon(18% 5%,93% .5%,97% 1%,99% 3%,99% 9%,97.5% 10%,98.5% 11%,80.5% 99.5%,59% 97%,35% 94%,18% 93%,.5% 93.5%,13% 13%,15% 11%,14% 10%,16% 7%)}
+.exhibition-stage .exhibit[data-case="monchhichi"] .jelly-pouch img{width:278.884%;height:270.476%;top:-138.413%;left:-21.912%;object-fit:fill;filter:none}
+.exhibition-stage .exhibit[data-case="monchhichi"] .jelly-yellow img{left:-161.354%}
+.exhibition-stage .jelly-yellow{width:78%;left:37%;top:5%;transform:rotate(10deg)}
+.exhibition-stage .jelly-pink{width:82%;left:3%;top:26%;transform:rotate(-4deg)}
+
+.exhibition-stage .exhibit[data-case="seayababy"]{z-index:4}
+
+/* Print artwork remains untouched; the pouch has the original aspect ratio. */
+.exhibition-stage .jelly-pouch{aspect-ratio:1481/1835;overflow:visible;clip-path:none;border-radius:0;box-shadow:none;filter:drop-shadow(8px 13px 8px #0004)}
+.exhibition-stage .pouch-model{display:block;width:100%;height:100%;overflow:visible}
+.exhibition-stage .jelly-yellow{width:80%;left:34%;top:5%;transform:rotate(10deg)}
+.exhibition-stage .jelly-pink{width:84%;left:0%;top:26%;transform:rotate(-8deg)}
+.instagram-section{padding:80px 4vw;background:#e9e6de;color:#171717;border-top:1px solid #171717}
+.instagram-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:32px}
+.instagram-heading span{font:11px var(--mono);letter-spacing:.12em}.instagram-heading h2{font-size:clamp(38px,5vw,70px);font-weight:500;letter-spacing:-.055em;margin:10px 0}.instagram-heading p{font-size:14px}.instagram-heading>a{font:14px var(--mono);text-decoration:none;border-bottom:1px solid;padding-bottom:6px}
+.instagram-feed{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:1500px;margin:auto}.instagram-feed article{min-width:0;background:white;border:1px solid #d7d5ce;overflow:hidden}.instagram-feed iframe{width:100%;height:590px;display:block;border:0;background:white}.instagram-feed article>a{display:block;padding:15px 20px;font-size:12px;color:#292929;border-top:1px solid #eee}
+@media(max-width:1050px){.instagram-feed{grid-template-columns:repeat(2,minmax(0,1fr))}.instagram-feed article:last-child{display:none}}
+@media(max-width:700px){.instagram-section{padding:50px 20px}.instagram-heading{display:block}.instagram-heading>a{display:inline-block;margin-top:18px}.instagram-feed{grid-template-columns:1fr}.instagram-feed iframe{height:570px}.instagram-feed article:last-child{display:block}}
+
+/* Use a real regular font instead of the logo-only Helvetica Black face. */
+.behance-text{font-family:"Geist Variable",Pre,Arial,sans-serif!important;font-weight:400;font-synthesis:none;letter-spacing:-.01em;line-height:1.75!important}
+.behance-text .bold,.behance-text strong,.behance-text b{font-weight:600}
+.project-english,.source-title,.project-summary,.project-description{font-family:"Geist Variable",Pre,Arial,sans-serif}
+.instagram-profile{width:100%;max-width:1100px;margin:0 auto;background:#fff;border:1px solid #d7d5ce;border-radius:4px;overflow:hidden}
+.instagram-profile iframe{display:block;border:0;width:100%;height:calc(61.34vw + 250px);max-height:985px;background:white}
+@media(max-width:700px){.instagram-profile iframe{height:calc(66.67vw + 225px);max-height:none}}
+
+/* One typography system across portfolio navigation, cards and every case. */
+:root{--portfolio-font:"Geist Variable",Pre,Arial,sans-serif}
+.portfolio-section,.portfolio-section *,#projectPage,#projectPage *,.exhibit-caption,.exhibit-caption *{font-family:var(--portfolio-font)!important;font-synthesis:none}
+.portfolio-heading h2 em{font-style:normal}
+.portfolio-tabs>button,.portfolio-tabs>a,.exhibit-caption b{font-weight:500;letter-spacing:.01em}
+.portfolio-card-meta b,.source-title h1,.project-intro h1{font-weight:600}
+
+/* Shared type sizes for every portfolio, including imported inline text. */
+:root{--case-body-size:16px;--case-title-size:32px;--case-label-size:12px;--case-heading-size:24px}
+#projectPage .behance-text,#projectPage .project-description p,#projectPage .project-summary>p,#projectPage .project-summary dd,#projectPage .project-english{font-size:var(--case-body-size)!important;line-height:1.8!important}
+#projectPage .behance-text *{font-size:inherit!important;line-height:inherit!important}
+#projectPage .source-title h1,#projectPage .project-intro h1{font-size:var(--case-title-size)!important;line-height:1.3;letter-spacing:-.035em;font-weight:600}
+#projectPage .behance-text h1,#projectPage .behance-text h2,#projectPage .behance-text h3{font-size:var(--case-heading-size)!important;line-height:1.4!important;font-weight:600}
+#projectPage .source-title>p,#projectPage .project-eyebrow,#projectPage .project-summary dt,#projectPage .project-description>span,#projectPage .case-navigation>span,#projectPage .project-end small{font-size:var(--case-label-size)!important;line-height:1.5}
+#projectPage .case-navigation button,#projectPage .case-navigation a,#projectPage .project-end>a,#projectPage .project-end>button,#projectPage .behance-embeds>a{font-size:14px}
+#projectPage .project-end strong{font-size:var(--case-title-size);line-height:1.3}
+.portfolio-card-meta b{font-size:16px;line-height:1.5}.portfolio-card-meta small{font-size:13px;line-height:1.5}
+.portfolio-tabs>button,.portfolio-tabs>a{font-size:14px}.exhibit-caption b{font-size:14px}.exhibit-caption small{font-size:12px}
+@media(max-width:700px){:root{--case-body-size:15px;--case-title-size:26px;--case-heading-size:21px}.portfolio-card-meta b{font-size:15px}}
+.language-toggle{display:flex;gap:2px;padding:2px;border:1px solid #ffffff45;border-radius:20px}.language-toggle button{font:500 11px "Geist Variable",Arial,sans-serif;padding:4px 8px;border-radius:14px;color:#aaa;line-height:1.2}.language-toggle button[aria-pressed=true]{background:#d5ff65;color:#171717}
+[data-language=en] .studio-content{font-family:"Geist Variable",Pre,Arial,sans-serif}[data-language=en] .studio-content h3{letter-spacing:-.04em;font-size:clamp(28px,3vw,44px)}
+@media(max-width:700px){.menubar .menu-right{display:flex}.menubar .menu-right>span,.menubar .menu-right>time{display:none}.language-toggle button{padding:5px 7px}.menubar>strong{display:none}[data-language=en] .masthead-copy strong{font-size:17px}}
