@@ -28,7 +28,7 @@ export function initializeLanguage(host){
  }
  function apply(){observer.disconnect();document.documentElement.lang=lang;host.dataset.language=lang;
  const walker=document.createTreeWalker(host,NodeFilter.SHOW_TEXT);let n;
- while((n=walker.nextNode())){if(n.parentElement?.closest('script,style,svg,[data-language]'))continue;const old=originals.get(n);if(!old||n.nodeValue!==old.output)originals.set(n,{source:n.nodeValue,output:n.nodeValue});const state=originals.get(n);const next=lang==='en'?translate(state.source,n):state.source;if(n.nodeValue!==next)n.nodeValue=next;state.output=next;}
+ while((n=walker.nextNode())){if(n.parentElement?.closest('script,style,svg,button[data-language]'))continue;const old=originals.get(n);if(!old||n.nodeValue!==old.output)originals.set(n,{source:n.nodeValue,output:n.nodeValue});const state=originals.get(n);const next=lang==='en'?translate(state.source,n):state.source;if(n.nodeValue!==next)n.nodeValue=next;state.output=next;}
  host.querySelectorAll('[placeholder],[aria-label]').forEach(el=>{let data=attributes.get(el);if(!data){data={};for(const a of ['placeholder','aria-label'])if(el.hasAttribute(a))data[a]=el.getAttribute(a);attributes.set(el,data);}for(const[a,v]of Object.entries(data))el.setAttribute(a,lang==='en'?translate(v):v);});
  host.querySelectorAll('button[data-language]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.language===lang)));
  observer.observe(host,{childList:true,subtree:true,characterData:true});
