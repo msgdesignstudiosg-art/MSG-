@@ -37,7 +37,9 @@
 .exhibition-stage .exhibit[data-case="monchhichi"] .jelly-pouch img{width:338.03%;height:149.17%;left:-118.13%;top:-25.69%;object-fit:fill;transform:none;border-radius:0;filter:none}
 .exhibition-stage .exhibit[data-case="ajiya"]{z-index:3}
 .exhibition-stage .exhibit[data-case="ajiya"] img{width:185%;height:77%;object-fit:contain}
-.exhibition-stage .exhibit[data-case="ajiya"] .cup-blue{left:-37%;top:-16%;transform:rotate(11deg);z-index:1}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-blue{left:-37%;top:-11%;transform:rotate(11deg);z-index:1}
 .exhibition-stage .exhibit[data-case="ajiya"] .cup-red{left:-84%;top:11%;transform:rotate(-11deg);z-index:2}
-.exhibition-stage .exhibit[data-case="ajiya"] .cup-green{left:-75%;top:56%;transform:rotate(-8deg);z-index:3}
-.exhibition-stage .exhibit[data-case="ajiya"] .cup-yellow{left:-9%;top:37%;transform:rotate(12deg);z-index:4}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-green{left:-75%;top:43%;transform:rotate(-8deg);z-index:3}
+.exhibition-stage .exhibit[data-case="ajiya"] .cup-yellow{left:-25%;top:37%;transform:rotate(12deg);z-index:4}
+
+.exhibition-stage .exhibit-image{clip-path:inset(0 -100vw 0 -100vw)}
