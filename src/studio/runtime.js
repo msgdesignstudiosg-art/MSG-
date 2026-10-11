@@ -178,7 +178,7 @@ panels.forEach(panel=>{listen(panel,'pointermove',e=>{if(reduced||paused||e.poin
 return {
  updateProjects(records){
   if(disposed||!records.length)return;
-  // The public selection is intentionally limited to the first thirty Behance projects.
+  // The public selection preserves the approved Behance order and excludes hidden projects.
   // Existing admin descriptions can update selected cases without adding older work.
   PROJECTS=CURATED_PROJECTS.map(seed=>{const remote=records.find(p=>p.id===seed.id);return seed.modules?{...seed}:{...seed,d:remote?.d?.length?remote.d:seed.d};});
   refreshGallery();
